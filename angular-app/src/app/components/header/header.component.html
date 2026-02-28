@@ -1,0 +1,49 @@
+<header class="bg-[#1F3A5F] text-white sticky top-0 z-50 shadow-lg">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between h-16">
+      <a routerLink="/" class="flex items-center space-x-2">
+        <div class="text-2xl font-bold">VitreAuto</div>
+      </a>
+
+      <nav class="hidden md:flex items-center space-x-8">
+        <a routerLink="/" class="hover:text-gray-300 transition-colors">Accueil</a>
+        <a routerLink="/catalogue" class="hover:text-gray-300 transition-colors">Catalogue</a>
+        <a routerLink="/contact" class="hover:text-gray-300 transition-colors">Contact</a>
+      </nav>
+
+      <div class="hidden md:flex items-center space-x-4">
+        <a href="tel:+33123456789" class="flex items-center space-x-2 hover:text-gray-300 transition-colors">
+          <span class="text-sm">01 23 45 67 89</span>
+        </a>
+        <a routerLink="/panier" class="relative hover:text-gray-300 transition-colors">
+          <span class="sr-only">Panier</span>
+          <svg class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13l-1.35-6.75M7 13l-3 9m0 0h16m-16 0a2 2 0 11-4 0m20 0a2 2 0 11-4 0" />
+          </svg>
+          <span class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 text-xs flex items-center justify-center">
+            {{ itemCount() }}
+          </span>
+        </a>
+      </div>
+
+      <button class="md:hidden p-2" (click)="toggleMobileMenu()">
+        <span class="sr-only">Menu</span>
+        <svg *ngIf="!mobileMenuOpen()" class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+        </svg>
+        <svg *ngIf="mobileMenuOpen()" class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="mobileMenuOpen()" class="md:hidden bg-[#1F3A5F] border-t border-[#2d5080]">
+    <nav class="px-4 py-3 space-y-2">
+      <a routerLink="/" class="block hover:text-gray-300">Accueil</a>
+      <a routerLink="/catalogue" class="block hover:text-gray-300">Catalogue</a>
+      <a routerLink="/contact" class="block hover:text-gray-300">Contact</a>
+      <a routerLink="/panier" class="block hover:text-gray-300">Panier ({{ itemCount() }})</a>
+    </nav>
+  </div>
+</header>

@@ -1,0 +1,35 @@
+import { CommonModule } from '@angular/common';
+import { Component, Input } from '@angular/core';
+import { RouterLink } from '@angular/router';
+import { Product } from '../../data/products';
+import { CartService } from '../../services/cart.service';
+
+@Component({
+  selector: 'app-product-card',
+  standalone: true,
+  imports: [CommonModule, RouterLink],
+  templateUrl: './product-card.component.html',
+  styleUrls: ['./product-card.component.scss'],
+})
+export class ProductCardComponent {
+  @Input() product!: Product;
+  constructor(private cart: CartService) {}
+  addToCart(event: Event) {
+    event.preventDefault();
+    if (this.product) {
+      this.cart.addToCart(this.product);
+    }
+  }
+  availabilityClass(status: string) {
+    switch (status) {
+      case 'En stock':
+        return 'text-green-600 bg-green-50';
+      case 'Sur commande':
+        return 'text-orange-600 bg-orange-50';
+      case 'Rupture':
+        return 'text-red-600 bg-red-50';
+      default:
+        return 'text-gray-600 bg-gray-50';
+    }
+  }
+}
