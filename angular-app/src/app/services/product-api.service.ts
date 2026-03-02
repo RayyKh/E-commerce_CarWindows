@@ -63,4 +63,16 @@ export class ProductApiService {
   brands() {
     return this.http.get<string[]>(`${this.base}/products/brands`);
   }
+
+  adminCreate(p: any) {
+    return this.http.post<ApiProduct>(`${this.base}/admin/products`, p);
+  }
+
+  adminUpdate(id: string, p: any) {
+    return this.http.put<ApiProduct>(`${this.base}/admin/products/${id}`, p);
+  }
+
+  adminDelete(id: string) {
+    return this.http.delete(`${this.base}/admin/products/${id}`);
+  }
 }

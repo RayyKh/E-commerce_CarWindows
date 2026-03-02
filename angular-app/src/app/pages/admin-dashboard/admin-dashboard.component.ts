@@ -1,7 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { environment } from '../../../environments/environment';
+import { ProductApiService } from '../../services/product-api.service';
 
 interface OrderItem {
   id: number;
@@ -24,15 +26,32 @@ interface Order {
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './admin-dashboard.component.html',
 })
 export class AdminDashboardComponent {
+  activeTab = signal<'orders' | 'products'>('orders');
   orders = signal<Order[]>([]);
+  products = signal<any[]>([]);
+  
+  // Product Form
+  editingProduct = signal<any | null>(null);
+  productForm = {
+    nom: '',
+    description: '',
+    prix: 0,
+    marqueVoiture: '',
+    modeleVoiture: '',
+    annee: '',
+    imageUrl: '',
+    stock: 0
+  };
+
   private base = environment.apiUrl;
 
-  constructor(private http: HttpClient) {
+  constructor(private http: HttpClient, private productApi: ProductApiService) {
     this.loadOrders();
+    this.loadProducts();
   }
 
   loadOrders() {
@@ -41,10 +60,63 @@ export class AdminDashboardComponent {
     });
   }
 
+  loadProducts() {
+    this.productApi.list(0, 100).subscribe(res => {
+      this.products.set(res.content);
+    });
+  }
+
   updateStatus(orderId: number, status: string) {
     this.http.put(`${this.base}/admin/orders/${orderId}/status`, {}, { params: { status } }).subscribe(() => {
       this.loadOrders();
     });
+  }
+
+  // Product CRUD
+  editProduct(p: any) {
+    this.editingProduct.set(p);
+    this.productForm = { ...p };
+  }
+
+  cancelEdit() {
+    this.editingProduct.set(null);
+    this.resetProductForm();
+  }
+
+  resetProductForm() {
+    this.productForm = {
+      nom: '',
+      description: '',
+      prix: 0,
+      marqueVoiture: '',
+      modeleVoiture: '',
+      annee: '',
+      imageUrl: '',
+      stock: 0
+    };
+  }
+
+  saveProduct() {
+    const p = this.editingProduct();
+    if (p) {
+      this.productApi.adminUpdate(p.id, this.productForm).subscribe(() => {
+        this.loadProducts();
+        this.cancelEdit();
+      });
+    } else {
+      this.productApi.adminCreate(this.productForm).subscribe(() => {
+        this.loadProducts();
+        this.resetProductForm();
+      });
+    }
+  }
+
+  deleteProduct(id: string) {
+    if (confirm('Êtes-vous sûr de vouloir supprimer ce produit ?')) {
+      this.productApi.adminDelete(id).subscribe(() => {
+        this.loadProducts();
+      });
+    }
   }
 
   statusClass(status: string) {

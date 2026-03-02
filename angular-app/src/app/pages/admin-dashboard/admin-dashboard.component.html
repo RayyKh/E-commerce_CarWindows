@@ -1,11 +1,20 @@
 <div class="min-h-screen bg-gray-50 p-8">
   <div class="max-w-7xl mx-auto">
     <div class="flex justify-between items-center mb-8">
-      <h1 class="text-3xl font-bold text-[#1F3A5F]">Dashboard Admin - Commandes</h1>
-      <button (click)="loadOrders()" class="bg-[#1F3A5F] text-white px-4 py-2 rounded hover:bg-[#2d5080]">Rafraîchir</button>
+      <h1 class="text-3xl font-bold text-[#1F3A5F]">Dashboard Admin</h1>
+      <div class="flex gap-4">
+        <button (click)="activeTab.set('orders')" [class.bg-[#1F3A5F]]="activeTab() === 'orders'" [class.text-white]="activeTab() === 'orders'" class="px-4 py-2 rounded border border-[#1F3A5F]">Commandes</button>
+        <button (click)="activeTab.set('products')" [class.bg-[#1F3A5F]]="activeTab() === 'products'" [class.text-white]="activeTab() === 'products'" class="px-4 py-2 rounded border border-[#1F3A5F]">Catalogue Produits</button>
+      </div>
     </div>
 
-    <div class="space-y-6">
+    <!-- Section Commandes -->
+    <div *ngIf="activeTab() === 'orders'" class="space-y-6">
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-2xl font-semibold text-gray-700">Gestion des Commandes</h2>
+        <button (click)="loadOrders()" class="bg-[#1F3A5F] text-white px-4 py-2 rounded hover:bg-[#2d5080]">Rafraîchir</button>
+      </div>
+
       <div *ngFor="let order of orders()" class="bg-white rounded-lg shadow-md p-6 border-l-4" [ngClass]="{
         'border-yellow-400': order.status === 'EN_ATTENTE',
         'border-blue-400': order.status === 'CONFIRMEE',
@@ -52,9 +61,58 @@
           </div>
         </div>
       </div>
+      <div *ngIf="orders().length === 0" class="text-center py-12 text-gray-500 bg-white rounded-lg shadow">Aucune commande.</div>
+    </div>
 
-      <div *ngIf="orders().length === 0" class="text-center py-12 text-gray-500 bg-white rounded-lg shadow">
-        Aucune commande trouvée.
+    <!-- Section Produits -->
+    <div *ngIf="activeTab() === 'products'" class="space-y-6">
+      <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+        <h2 class="text-xl font-bold text-[#1F3A5F] mb-4">{{ editingProduct() ? 'Modifier le Produit' : 'Ajouter un Nouveau Produit' }}</h2>
+        <form (submit)="saveProduct()" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <input [(ngModel)]="productForm.nom" name="nom" placeholder="Nom du produit" class="border p-2 rounded" required />
+          <input [(ngModel)]="productForm.marqueVoiture" name="marque" placeholder="Marque" class="border p-2 rounded" required />
+          <input [(ngModel)]="productForm.modeleVoiture" name="modele" placeholder="Modèle" class="border p-2 rounded" required />
+          <input [(ngModel)]="productForm.annee" name="annee" placeholder="Année" class="border p-2 rounded" required />
+          <input [(ngModel)]="productForm.prix" name="prix" type="number" placeholder="Prix (DT)" class="border p-2 rounded" required />
+          <input [(ngModel)]="productForm.stock" name="stock" type="number" placeholder="Stock" class="border p-2 rounded" required />
+          <input [(ngModel)]="productForm.imageUrl" name="image" placeholder="URL Image" class="border p-2 rounded md:col-span-2" />
+          <textarea [(ngModel)]="productForm.description" name="desc" placeholder="Description" class="border p-2 rounded md:col-span-3" rows="2"></textarea>
+          <div class="md:col-span-3 flex gap-2">
+            <button type="submit" class="bg-[#1F3A5F] text-white px-6 py-2 rounded font-semibold">{{ editingProduct() ? 'Enregistrer les modifications' : 'Ajouter au catalogue' }}</button>
+            <button *ngIf="editingProduct()" type="button" (click)="cancelEdit()" class="bg-gray-200 px-6 py-2 rounded">Annuler</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="bg-white rounded-lg shadow-md overflow-hidden">
+        <table class="w-full text-left border-collapse">
+          <thead class="bg-gray-100 text-[#1F3A5F]">
+            <tr>
+              <th class="p-4 border-b">Produit</th>
+              <th class="p-4 border-b">Marque/Modèle</th>
+              <th class="p-4 border-b text-center">Stock</th>
+              <th class="p-4 border-b text-right">Prix</th>
+              <th class="p-4 border-b text-center">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y">
+            <tr *ngFor="let p of products()" class="hover:bg-gray-50 transition-colors">
+              <td class="p-4 flex items-center gap-4">
+                <img [src]="p.imageUrl" class="w-10 h-10 object-cover rounded" />
+                <span class="font-medium">{{ p.nom }}</span>
+              </td>
+              <td class="p-4 text-gray-600">{{ p.marqueVoiture }} {{ p.modeleVoiture }} ({{ p.annee }})</td>
+              <td class="p-4 text-center">
+                <span [class.text-red-600]="p.stock <= 5" [class.font-bold]="p.stock <= 5">{{ p.stock }}</span>
+              </td>
+              <td class="p-4 text-right font-bold text-[#1F3A5F]">{{ p.prix }} DT</td>
+              <td class="p-4 text-center space-x-2">
+                <button (click)="editProduct(p)" class="text-blue-600 hover:underline">Modifier</button>
+                <button (click)="deleteProduct(p.id)" class="text-red-600 hover:underline">Supprimer</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
   </div>
