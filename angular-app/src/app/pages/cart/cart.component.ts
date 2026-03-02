@@ -21,6 +21,6 @@ export class CartComponent {
     this.cart.removeFromCart(id);
   }
   checkout() {
-    this.router.navigate(['/contact']);
+    this.router.navigate(['/commande']);
   }
 }

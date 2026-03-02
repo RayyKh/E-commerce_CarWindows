@@ -1,0 +1,27 @@
+# Node.js
+**/node_modules/
+**/dist/
+**/.angular/
+
+# Java / Maven
+**/target/
+**/*.class
+**/*.jar
+**/*.war
+**/*.ear
+
+# IDEs
+**/.vscode/
+**/.idea/
+**/*.swp
+**/*.swo
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Environment
+**/.env
+**/*.local
+**/application-dev.yml
+**/application.yml

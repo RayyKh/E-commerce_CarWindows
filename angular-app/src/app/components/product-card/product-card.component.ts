@@ -16,9 +16,14 @@ export class ProductCardComponent {
   constructor(private cart: CartService) {}
   addToCart(event: Event) {
     event.preventDefault();
+    event.stopPropagation();
     if (this.product) {
       this.cart.addToCart(this.product);
     }
+  }
+  onImgError(ev: Event) {
+    const el = ev.target as HTMLImageElement;
+    el.src = 'https://placehold.jp/600x400.png?text=VitreAuto';
   }
   availabilityClass(status: string) {
     switch (status) {

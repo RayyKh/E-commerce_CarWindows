@@ -1,14 +1,29 @@
 <section class="relative text-white">
   <img src="https://images.unsplash.com/photo-1565376791568-d30e46523795?auto=format&fit=crop&w=1600&q=80" alt="Vitre automobile" class="absolute inset-0 w-full h-full object-cover">
   <div class="absolute inset-0 bg-[#1F3A5F] opacity-80"></div>
-  <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-    <h1 class="text-3xl md:text-5xl font-bold mb-4">Vitres automobiles de qualité</h1>
-    <p class="text-gray-200 mb-8">
-      Trouvez la vitre parfaite pour votre véhicule, installation professionnelle recommandée.
-    </p>
-    <a routerLink="/catalogue" class="inline-block bg-white text-[#1F3A5F] px-6 py-3 rounded-lg font-semibold">
-      Voir le catalogue
-    </a>
+  <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 min-h-[420px] flex items-center justify-center">
+    <div class="text-center max-w-2xl">
+      <h1 class="text-3xl md:text-5xl font-bold mb-4">Vitres automobiles de qualité</h1>
+      <p class="text-gray-200 mb-8">
+        Trouvez la vitre parfaite pour votre véhicule, installation professionnelle recommandée.
+      </p>
+      <form (submit)="onSearch($event)" class="flex items-center bg-white/95 rounded-lg overflow-hidden shadow-md max-w-xl mx-auto">
+        <input
+          class="flex-1 px-4 py-3 text-gray-800 placeholder-gray-500 focus:outline-none"
+          type="text"
+          [ngModel]="query()"
+          (ngModelChange)="query.set($event)"
+          name="heroSearch"
+          placeholder="Rechercher par marque, modèle, type..."
+        />
+        <button class="bg-[#1F3A5F] text-white px-5 py-3 font-semibold hover:bg-[#2d5080] transition-colors">
+          Rechercher
+        </button>
+      </form>
+      <a routerLink="/catalogue" class="inline-block bg-white text-[#1F3A5F] px-6 py-3 rounded-lg font-semibold mt-4">
+        Voir le catalogue
+      </a>
+    </div>
   </div>
 </section>
 

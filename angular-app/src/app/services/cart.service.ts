@@ -12,7 +12,12 @@ export class CartService {
   private load(): CartItem[] {
     try {
       const saved = localStorage.getItem('cart');
-      return saved ? JSON.parse(saved) : [];
+      if (!saved) return [];
+      const list: CartItem[] = JSON.parse(saved);
+      return list.map((i) => ({
+        ...i,
+        image: i.image?.replace('via.placeholder.com', 'placehold.jp') || i.image,
+      }));
     } catch {
       return [];
     }
