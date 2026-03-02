@@ -20,6 +20,7 @@ interface ApiProduct {
   annee: string;
   imageUrl: string;
   stock: number;
+  status: string;
   createdAt: string;
 }
 
@@ -39,7 +40,7 @@ export class ProductApiService {
       year: p.annee,
       image: p.imageUrl,
       type: 'Pare-brise',
-      availability: p.stock > 0 ? 'En stock' : 'Rupture',
+      availability: (p.status || (p.stock > 0 ? 'En stock' : 'Rupture')) as any,
       category: 'Standard',
     };
   }

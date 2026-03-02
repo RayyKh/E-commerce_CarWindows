@@ -30,7 +30,8 @@ export class ProductCardComponent {
       case 'En stock':
         return 'text-green-600 bg-green-50';
       case 'Sur commande':
-        return 'text-orange-600 bg-orange-50';
+        return 'text-blue-600 bg-blue-50';
+      case 'Épuisé':
       case 'Rupture':
         return 'text-red-600 bg-red-50';
       default:

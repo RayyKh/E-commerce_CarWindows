@@ -54,6 +54,7 @@ public class DataInitializer implements CommandLineRunner {
             .annee("2021")
             .imageUrl("https://placehold.jp/600x400.png?text=VitreAuto")
             .stock(100)
+            .status("En stock")
             .build());
       }
     }

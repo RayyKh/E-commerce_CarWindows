@@ -24,4 +24,5 @@ public class ProductCreateUpdateDto {
   @NotNull
   @Min(0)
   private Integer stock;
+  private String status;
 }

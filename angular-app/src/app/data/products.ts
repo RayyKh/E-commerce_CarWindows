@@ -6,7 +6,7 @@ export interface Product {
   model: string;
   year: string;
   price: number;
-  availability: 'En stock' | 'Sur commande' | 'Rupture';
+  availability: 'En stock' | 'Sur commande' | 'Rupture' | 'Épuisé';
   description: string;
   image: string;
   category: string;

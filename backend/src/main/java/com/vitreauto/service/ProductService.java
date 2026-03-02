@@ -40,6 +40,7 @@ public class ProductService {
     p.setAnnee(dto.getAnnee());
     p.setImageUrl(dto.getImageUrl());
     p.setStock(dto.getStock());
+    p.setStatus(dto.getStatus());
     return productRepository.save(p);
   }
 
@@ -53,6 +54,7 @@ public class ProductService {
     p.setAnnee(dto.getAnnee());
     p.setImageUrl(dto.getImageUrl());
     p.setStock(dto.getStock());
+    p.setStatus(dto.getStatus());
     return productRepository.save(p);
   }
 

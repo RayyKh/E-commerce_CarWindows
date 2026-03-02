@@ -70,12 +70,32 @@
         <h2 class="text-xl font-bold text-[#1F3A5F] mb-4">{{ editingProduct() ? 'Modifier le Produit' : 'Ajouter un Nouveau Produit' }}</h2>
         <form (submit)="saveProduct()" class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <input [(ngModel)]="productForm.nom" name="nom" placeholder="Nom du produit" class="border p-2 rounded" required />
-          <input [(ngModel)]="productForm.marqueVoiture" name="marque" placeholder="Marque" class="border p-2 rounded" required />
+          
+          <select [(ngModel)]="productForm.marqueVoiture" name="marque" class="border p-2 rounded" required>
+            <option value="" disabled selected>Sélectionner une marque</option>
+            <option *ngFor="let brand of brands" [value]="brand">{{ brand }}</option>
+          </select>
+
           <input [(ngModel)]="productForm.modeleVoiture" name="modele" placeholder="Modèle" class="border p-2 rounded" required />
+          
           <input [(ngModel)]="productForm.annee" name="annee" placeholder="Année" class="border p-2 rounded" required />
           <input [(ngModel)]="productForm.prix" name="prix" type="number" placeholder="Prix (DT)" class="border p-2 rounded" required />
           <input [(ngModel)]="productForm.stock" name="stock" type="number" placeholder="Stock" class="border p-2 rounded" required />
-          <input [(ngModel)]="productForm.imageUrl" name="image" placeholder="URL Image" class="border p-2 rounded md:col-span-2" />
+          
+          <select [(ngModel)]="productForm.status" name="status" class="border p-2 rounded" required>
+            <option value="En stock">En stock</option>
+            <option value="Épuisé">Épuisé</option>
+            <option value="Sur commande">Sur commande</option>
+          </select>
+
+          <div class="md:col-span-2 flex items-center gap-4">
+            <div class="flex-1">
+              <label class="block text-sm text-gray-500 mb-1">Image du produit</label>
+              <input type="file" (change)="onFileSelected($event)" accept="image/*" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" />
+            </div>
+            <img *ngIf="productForm.imageUrl" [src]="productForm.imageUrl" class="w-16 h-16 object-cover rounded border" />
+          </div>
+
           <textarea [(ngModel)]="productForm.description" name="desc" placeholder="Description" class="border p-2 rounded md:col-span-3" rows="2"></textarea>
           <div class="md:col-span-3 flex gap-2">
             <button type="submit" class="bg-[#1F3A5F] text-white px-6 py-2 rounded font-semibold">{{ editingProduct() ? 'Enregistrer les modifications' : 'Ajouter au catalogue' }}</button>
@@ -90,6 +110,7 @@
             <tr>
               <th class="p-4 border-b">Produit</th>
               <th class="p-4 border-b">Marque/Modèle</th>
+              <th class="p-4 border-b text-center">Statut</th>
               <th class="p-4 border-b text-center">Stock</th>
               <th class="p-4 border-b text-right">Prix</th>
               <th class="p-4 border-b text-center">Actions</th>
@@ -102,6 +123,13 @@
                 <span class="font-medium">{{ p.nom }}</span>
               </td>
               <td class="p-4 text-gray-600">{{ p.marqueVoiture }} {{ p.modeleVoiture }} ({{ p.annee }})</td>
+              <td class="p-4 text-center">
+                <span class="px-2 py-1 text-xs rounded-full" [ngClass]="{
+                  'bg-green-100 text-green-800': p.status === 'En stock',
+                  'bg-red-100 text-red-800': p.status === 'Épuisé',
+                  'bg-blue-100 text-blue-800': p.status === 'Sur commande'
+                }">{{ p.status || 'En stock' }}</span>
+              </td>
               <td class="p-4 text-center">
                 <span [class.text-red-600]="p.stock <= 5" [class.font-bold]="p.stock <= 5">{{ p.stock }}</span>
               </td>

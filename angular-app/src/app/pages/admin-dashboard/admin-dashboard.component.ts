@@ -23,6 +23,18 @@ interface Order {
   orderItems: OrderItem[];
 }
 
+interface ProductForm {
+  nom: string;
+  description: string;
+  prix: number;
+  marqueVoiture: string;
+  modeleVoiture: string;
+  annee: string;
+  imageUrl: string;
+  stock: number;
+  status: string;
+}
+
 @Component({
   selector: 'app-admin-dashboard',
   standalone: true,
@@ -34,9 +46,17 @@ export class AdminDashboardComponent {
   orders = signal<Order[]>([]);
   products = signal<any[]>([]);
   
+  brands = [
+    "ALFA ROMEO", "AUDI", "BMW", "CHEVROLET", "CHRYSLER", "CITROEN", "DACIA", "DAEWOO", "DAIHATSU",
+    "DODGE", "DS", "FIAT", "FORD", "HONDA", "HYUNDAI", "IVECO", "JAGUAR", "JEEP", "KIA", "LANCIA",
+    "LAND ROVER", "LEXUS", "MAZDA", "MERCEDES", "MINI", "MITSUBISHI", "NISSAN", "OPEL", "PEUGEOT",
+    "PORSCHE", "RENAULT", "SAAB", "SEAT", "SKODA", "SMART", "SSANGYONG", "SUBARU", "SUZUKI", "TOYOTA",
+    "VOLKSWAGEN", "VOLVO"
+  ];
+
   // Product Form
   editingProduct = signal<any | null>(null);
-  productForm = {
+  productForm: ProductForm = {
     nom: '',
     description: '',
     prix: 0,
@@ -44,7 +64,8 @@ export class AdminDashboardComponent {
     modeleVoiture: '',
     annee: '',
     imageUrl: '',
-    stock: 0
+    stock: 0,
+    status: 'En stock'
   };
 
   private base = environment.apiUrl;
@@ -52,6 +73,17 @@ export class AdminDashboardComponent {
   constructor(private http: HttpClient, private productApi: ProductApiService) {
     this.loadOrders();
     this.loadProducts();
+  }
+
+  onFileSelected(event: any) {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        this.productForm.imageUrl = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
   }
 
   loadOrders() {
@@ -75,7 +107,17 @@ export class AdminDashboardComponent {
   // Product CRUD
   editProduct(p: any) {
     this.editingProduct.set(p);
-    this.productForm = { ...p };
+    this.productForm = { 
+      nom: p.nom || '',
+      description: p.description || '',
+      prix: p.prix || 0,
+      marqueVoiture: p.marqueVoiture || '',
+      modeleVoiture: p.modeleVoiture || '',
+      annee: p.annee || '',
+      imageUrl: p.imageUrl || '',
+      stock: p.stock || 0,
+      status: p.status || 'En stock'
+    };
   }
 
   cancelEdit() {
@@ -92,7 +134,8 @@ export class AdminDashboardComponent {
       modeleVoiture: '',
       annee: '',
       imageUrl: '',
-      stock: 0
+      stock: 0,
+      status: 'En stock'
     };
   }
 
