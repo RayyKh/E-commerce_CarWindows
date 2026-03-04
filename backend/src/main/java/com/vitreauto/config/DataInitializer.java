@@ -27,7 +27,7 @@ public class DataInitializer implements CommandLineRunner {
   }
   @Override
   public void run(String... args) {
-    if (userRepository.findByEmail("admin@vitreauto.local").isEmpty()) {
+    if (!userRepository.findByEmail("admin@vitreauto.local").isPresent()) {
       User admin = User.builder()
           .email("admin@vitreauto.local")
           .password(passwordEncoder.encode("admin123"))

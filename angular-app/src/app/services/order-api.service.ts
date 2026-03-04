@@ -25,4 +25,13 @@ export class OrderApiService {
   createOrder(req: OrderRequest) {
     return this.http.post<ApiOrder>(`${this.base}/orders`, req);
   }
+  myOrders() {
+    return this.http.get<any[]>(`${this.base}/orders/my-orders`);
+  }
+  ordersByPhone(phone: string) {
+    return this.http.get<any[]>(`${this.base}/orders/by-phone`, { params: { phone } });
+  }
+  getOrder(id: string) {
+    return this.http.get<any>(`${this.base}/admin/orders/${id}`);
+  }
 }

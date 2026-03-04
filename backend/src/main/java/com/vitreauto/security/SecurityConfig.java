@@ -1,6 +1,6 @@
 package com.vitreauto.security;
 
-import java.util.List;
+import java.util.Arrays;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -42,7 +42,7 @@ public class SecurityConfig {
 
   @Bean
   public UserDetailsService userDetailsService() {
-    return username -> userRepository.findByEmail(username).orElseThrow();
+    return username -> userRepository.findByEmail(username).orElseThrow(() -> new RuntimeException("User not found"));
   }
 
   @Bean
@@ -55,6 +55,8 @@ public class SecurityConfig {
             .requestMatchers("/auth/**").permitAll()
             .requestMatchers("/products/**").permitAll()
             .requestMatchers(HttpMethod.POST, "/orders").permitAll()
+            .requestMatchers("/orders/by-phone").permitAll()
+            .requestMatchers(HttpMethod.OPTIONS, "/orders/**").permitAll()
             .requestMatchers("/h2/**").permitAll()
             .requestMatchers("/admin/**").permitAll()
             .requestMatchers("/orders/**").hasAnyRole("CLIENT","ADMIN")
@@ -87,9 +89,9 @@ public class SecurityConfig {
   public CorsConfigurationSource corsConfigurationSource() {
     CorsConfiguration config = new CorsConfiguration();
     config.setAllowCredentials(true);
-    config.setAllowedOrigins(List.of("http://localhost:4200"));
-    config.setAllowedHeaders(List.of("*"));
-    config.setAllowedMethods(List.of("GET","POST","PUT","DELETE","OPTIONS"));
+    config.setAllowedOrigins(Arrays.asList("http://localhost:4200","http://localhost:4201"));
+    config.setAllowedHeaders(Arrays.asList("*"));
+    config.setAllowedMethods(Arrays.asList("GET","POST","PUT","DELETE","OPTIONS"));
     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
     source.registerCorsConfiguration("/**", config);
     return source;

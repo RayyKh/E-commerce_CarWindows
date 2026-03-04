@@ -31,7 +31,7 @@ public class DashboardService {
   }
 
   public long totalClients() {
-    return userRepository.countByRole(Role.CLIENT);
+    return orderRepository.distinctCustomerPhones();
   }
 
   public Map<String, BigDecimal> monthlyRevenue() {

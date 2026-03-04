@@ -1,27 +1,28 @@
-# Node.js
-**/node_modules/
-**/dist/
-**/.angular/
+# Node / Angular
+angular-app/node_modules/
+angular-app/dist/
+angular-app/.angular/cache/
 
-# Java / Maven
-**/target/
-**/*.class
-**/*.jar
-**/*.war
-**/*.ear
+# Java / Spring
+backend/target/
+.mvn/
 
-# IDEs
-**/.vscode/
-**/.idea/
-**/*.swp
-**/*.swo
+# Logs
+*.log
+backend/*.log
+angular-app/*.log
 
-# OS
-Thumbs.db
+# Env / secrets
+.env
+.env.local
+.env.*.local
+
+# Editor / OS
+.idea/
+.vscode/
 .DS_Store
+Thumbs.db
 
-# Environment
-**/.env
-**/*.local
-**/application-dev.yml
-**/application.yml
+# Coverage / reports
+coverage/
+reports/

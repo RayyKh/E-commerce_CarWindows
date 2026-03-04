@@ -20,6 +20,22 @@
           </div>
 
           <div>
+            <label class="block text-sm text-gray-600 mb-2">Modèle</label>
+            <select class="w-full border rounded-md p-2" [value]="selectedModel()" (change)="selectedModel.set(($any($event.target)).value)">
+              <option value="all">Tous</option>
+              <option *ngFor="let p of productsSig()" [value]="p.model">{{ p.model }}</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-sm text-gray-600 mb-2">Année</label>
+            <select class="w-full border rounded-md p-2" [value]="selectedYear()" (change)="selectedYear.set(($any($event.target)).value)">
+              <option value="all">Toutes</option>
+              <option *ngFor="let p of productsSig()" [value]="p.year">{{ p.year }}</option>
+            </select>
+          </div>
+
+          <div>
             <label class="block text-sm text-gray-600 mb-2">Type</label>
             <select class="w-full border rounded-md p-2" [value]="selectedType()" (change)="selectedType.set(($any($event.target)).value)">
               <option value="all">Tous</option>

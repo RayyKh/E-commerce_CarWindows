@@ -5,6 +5,8 @@
       <div class="flex gap-4">
         <button (click)="activeTab.set('orders')" [class.bg-[#1F3A5F]]="activeTab() === 'orders'" [class.text-white]="activeTab() === 'orders'" class="px-4 py-2 rounded border border-[#1F3A5F]">Commandes</button>
         <button (click)="activeTab.set('products')" [class.bg-[#1F3A5F]]="activeTab() === 'products'" [class.text-white]="activeTab() === 'products'" class="px-4 py-2 rounded border border-[#1F3A5F]">Catalogue Produits</button>
+        <button (click)="showRevenueTab()" [class.bg-[#1F3A5F]]="activeTab() === 'revenue'" [class.text-white]="activeTab() === 'revenue'" class="px-4 py-2 rounded border border-[#1F3A5F]">Revenu</button>
+        <button (click)="activeTab.set('history')" [class.bg-[#1F3A5F]]="activeTab() === 'history'" [class.text-white]="activeTab() === 'history'" class="px-4 py-2 rounded border border-[#1F3A5F]">Historique</button>
       </div>
     </div>
 
@@ -141,6 +143,64 @@
             </tr>
           </tbody>
         </table>
+      </div>
+    </div>
+    
+    <!-- Section Revenu -->
+    <div *ngIf="activeTab() === 'revenue'" class="space-y-6">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="bg-white rounded-lg shadow p-6">
+          <div class="text-sm text-gray-500">Revenu total</div>
+          <div class="text-3xl font-bold text-[#1F3A5F] mt-2">{{ totalRevenue() | number:'1.0-0' }} DT</div>
+        </div>
+        <div class="bg-white rounded-lg shadow p-6">
+          <div class="text-sm text-gray-500">Commandes</div>
+          <div class="text-3xl font-bold text-[#1F3A5F] mt-2">{{ totalOrders() }}</div>
+        </div>
+        <div class="bg-white rounded-lg shadow p-6">
+          <div class="text-sm text-gray-500">Clients</div>
+          <div class="text-3xl font-bold text-[#1F3A5F] mt-2">{{ totalClients() }}</div>
+        </div>
+      </div>
+      <div class="bg-white rounded-lg shadow p-6">
+        <h2 class="text-xl font-bold text-[#1F3A5F] mb-2">Revenu de ce mois</h2>
+        <div class="text-4xl font-extrabold text-[#1F3A5F] tracking-tight">{{ monthlyTotal() | number:'1.0-0' }} DT</div>
+        <div class="text-sm text-gray-500 mt-2">Basé sur les commandes enregistrées ce mois-ci.</div>
+      </div>
+    </div>
+    
+    <!-- Section Historique -->
+    <div *ngIf="activeTab() === 'history'" class="space-y-6">
+      <div class="bg-white rounded-lg shadow p-6">
+        <h2 class="text-xl font-bold text-[#1F3A5F] mb-4">Historique des commandes</h2>
+        <div class="divide-y">
+          <div *ngFor="let order of orders()" class="py-4">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="text-sm text-gray-500">#{{ order.id }} • {{ order.dateCommande | date:'dd/MM/yyyy HH:mm' }}</div>
+                <div class="text-gray-700">{{ order.customerName }} — {{ order.customerPhone }}</div>
+                <div class="text-xs text-gray-500">{{ order.customerAddress }}</div>
+              </div>
+              <div class="flex items-center gap-4">
+                <span class="px-2 py-1 rounded text-xs" [ngClass]="statusClass(order.status)">{{ order.status }}</span>
+                <span class="font-bold text-[#1F3A5F]">{{ order.total }} DT</span>
+              </div>
+            </div>
+            <div class="mt-3 pl-4 border-l">
+              <div class="text-sm font-semibold text-gray-700 mb-1">Articles</div>
+              <div class="text-sm divide-y">
+                <div *ngFor="let item of order.orderItems" class="py-1 flex justify-between">
+                  <div>
+                    <span class="font-medium">{{ item.product.nom }}</span>
+                    <span class="text-gray-500 ml-2">{{ item.product.marqueVoiture }} {{ item.product.modeleVoiture }}</span>
+                  </div>
+                  <div class="text-gray-600">{{ item.quantity }} x {{ item.price }} DT</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div *ngIf="orders().length === 0" class="text-center text-gray-500">Aucune commande.</div>
       </div>
     </div>
   </div>

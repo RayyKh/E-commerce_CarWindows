@@ -7,6 +7,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
+import java.util.Collections;
 
 @Getter
 @Setter
@@ -34,7 +35,7 @@ public class User implements org.springframework.security.core.userdetails.UserD
 
   @Override
   public Collection<? extends org.springframework.security.core.GrantedAuthority> getAuthorities() {
-    return List.of(new org.springframework.security.core.authority.SimpleGrantedAuthority("ROLE_" + role.name()));
+    return Collections.singletonList(new org.springframework.security.core.authority.SimpleGrantedAuthority("ROLE_" + role.name()));
   }
   @Override
   public String getUsername() {

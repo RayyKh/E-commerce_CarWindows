@@ -50,7 +50,7 @@ public class OrderService {
     order.setStatus(OrderStatus.EN_ATTENTE);
     BigDecimal total = BigDecimal.ZERO;
     for (OrderItemRequest itemReq : request.getProducts()) {
-      Product product = productRepository.findById(itemReq.getProductId()).orElseThrow();
+      Product product = productRepository.findById(itemReq.getProductId()).orElseThrow(() -> new RuntimeException("Product not found"));
       if (product.getStock() < itemReq.getQuantity()) throw new RuntimeException("Stock insuffisant");
       BigDecimal price = product.getPrix().multiply(BigDecimal.valueOf(itemReq.getQuantity()));
       total = total.add(price);
@@ -58,7 +58,7 @@ public class OrderService {
     order.setTotal(total);
     order = orderRepository.save(order);
     for (OrderItemRequest itemReq : request.getProducts()) {
-      Product product = productRepository.findById(itemReq.getProductId()).orElseThrow();
+      Product product = productRepository.findById(itemReq.getProductId()).orElseThrow(() -> new RuntimeException("Product not found"));
       OrderItem item = new OrderItem();
       item.setOrder(order);
       item.setProduct(product);
@@ -80,8 +80,12 @@ public class OrderService {
     return orderRepository.findAll();
   }
 
+  public List<Order> byPhone(String phone) {
+    return orderRepository.findByCustomerPhone(phone);
+  }
+
   public Order get(Long id) {
-    return orderRepository.findById(id).orElseThrow();
+    return orderRepository.findById(id).orElseThrow(() -> new RuntimeException("Order not found"));
   }
 
   public Order updateStatus(Long id, OrderStatus status) {

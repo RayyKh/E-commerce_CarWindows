@@ -34,14 +34,14 @@ public class AuthService {
         .role(Role.CLIENT)
         .build();
     userRepository.save(user);
-    String token = jwtService.generateToken(user, java.util.Map.of("role", user.getRole().name()));
+    String token = jwtService.generateToken(user, java.util.Collections.singletonMap("role", user.getRole().name()));
     return new AuthResponse(token);
   }
 
   public AuthResponse login(AuthLoginRequest request) {
     authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
-    User user = userRepository.findByEmail(request.getEmail()).orElseThrow();
-    String token = jwtService.generateToken(user, java.util.Map.of("role", user.getRole().name()));
+    User user = userRepository.findByEmail(request.getEmail()).orElseThrow(() -> new RuntimeException("User not found"));
+    String token = jwtService.generateToken(user, java.util.Collections.singletonMap("role", user.getRole().name()));
     return new AuthResponse(token);
   }
 }

@@ -28,4 +28,9 @@ public class OrderController {
   public ResponseEntity<List<Order>> myOrders(@AuthenticationPrincipal User user) {
     return ResponseEntity.ok(orderService.myOrders(user));
   }
+  
+  @GetMapping("/orders/by-phone")
+  public ResponseEntity<List<Order>> byPhone(@RequestParam("phone") String phone) {
+    return ResponseEntity.ok(orderService.byPhone(phone));
+  }
 }

@@ -1,28 +1,45 @@
 <section class="relative text-white">
-  <img src="https://images.unsplash.com/photo-1565376791568-d30e46523795?auto=format&fit=crop&w=1600&q=80" alt="Vitre automobile" class="absolute inset-0 w-full h-full object-cover">
-  <div class="absolute inset-0 bg-[#1F3A5F] opacity-80"></div>
-  <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 min-h-[420px] flex items-center justify-center">
-    <div class="text-center max-w-2xl">
-      <h1 class="text-3xl md:text-5xl font-bold mb-4">Vitres automobiles de qualité</h1>
-      <p class="text-gray-200 mb-8">
-        Trouvez la vitre parfaite pour votre véhicule, installation professionnelle recommandée.
+  <img [src]="heroImage" alt="Installation de vitrage automobile" class="absolute inset-0 w-full h-full object-cover">
+  <div class="absolute inset-0 bg-[#0c1f3a] opacity-85"></div>
+  <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 min-h-[460px] flex items-center justify-center">
+    <div class="max-w-3xl text-center">
+      <h1 class="text-3xl md:text-6xl font-extrabold leading-tight mb-4">
+        Vitres automobiles <span class="text-[#4cb0ff]">de qualité</span> en Tunisie
+      </h1>
+      <p class="text-gray-200 text-lg md:text-xl mb-8">
+        Pare-brise, vitres latérales et lunettes arrière pour toutes les marques.
+        Qualité OEM garantie avec livraison partout en Tunisie.
       </p>
-      <form (submit)="onSearch($event)" class="flex items-center bg-white/95 rounded-lg overflow-hidden shadow-md max-w-xl mx-auto">
-        <input
-          class="flex-1 px-4 py-3 text-gray-800 placeholder-gray-500 focus:outline-none"
-          type="text"
-          [ngModel]="query()"
-          (ngModelChange)="query.set($event)"
-          name="heroSearch"
-          placeholder="Rechercher par marque, modèle, type..."
-        />
-        <button class="bg-[#1F3A5F] text-white px-5 py-3 font-semibold hover:bg-[#2d5080] transition-colors">
-          Rechercher
-        </button>
+      <form (submit)="onSearch($event)" class="bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl p-4 sm:p-5 max-w-3xl mx-auto">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+          <div class="md:col-span-1">
+            <select class="w-full px-4 py-3 rounded-lg border border-gray-200 text-gray-800"
+                    [ngModel]="selectedBrand()" (ngModelChange)="onBrandChange($event)" name="brand">
+              <option value="all">Marque</option>
+              <option *ngFor="let b of brandsSig()" [value]="b">{{ b }}</option>
+            </select>
+          </div>
+          <div class="md:col-span-1">
+            <select class="w-full px-4 py-3 rounded-lg border border-gray-200 text-gray-800"
+                    [ngModel]="selectedModel()" (ngModelChange)="selectedModel.set($event)" name="model">
+              <option value="all">Modèle</option>
+              <option *ngFor="let m of models()" [value]="m">{{ m }}</option>
+            </select>
+          </div>
+          <div class="md:col-span-1">
+            <select class="w-full px-4 py-3 rounded-lg border border-gray-200 text-gray-800"
+                    [ngModel]="selectedYear()" (ngModelChange)="selectedYear.set($event)" name="year">
+              <option value="all">Année</option>
+              <option *ngFor="let y of years()" [value]="y">{{ y }}</option>
+            </select>
+          </div>
+          <div class="md:col-span-1">
+            <button class="w-full bg-[#1F3A5F] text-white px-5 py-3 rounded-lg font-semibold hover:bg-[#2d5080] transition-colors">
+              Rechercher
+            </button>
+          </div>
+        </div>
       </form>
-      <a routerLink="/catalogue" class="inline-block bg-white text-[#1F3A5F] px-6 py-3 rounded-lg font-semibold mt-4">
-        Voir le catalogue
-      </a>
     </div>
   </div>
 </section>

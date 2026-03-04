@@ -42,9 +42,14 @@ interface ProductForm {
   templateUrl: './admin-dashboard.component.html',
 })
 export class AdminDashboardComponent {
-  activeTab = signal<'orders' | 'products'>('orders');
+  activeTab = signal<'orders' | 'products' | 'revenue' | 'history'>('orders');
   orders = signal<Order[]>([]);
   products = signal<any[]>([]);
+  totalRevenue = signal<number>(0);
+  totalOrders = signal<number>(0);
+  totalClients = signal<number>(0);
+  monthlyRevenue = signal<{ label: string; amount: number }[]>([]);
+  monthlyTotal = signal<number>(0);
   
   brands = [
     "ALFA ROMEO", "AUDI", "BMW", "CHEVROLET", "CHRYSLER", "CITROEN", "DACIA", "DAEWOO", "DAIHATSU",
@@ -73,6 +78,7 @@ export class AdminDashboardComponent {
   constructor(private http: HttpClient, private productApi: ProductApiService) {
     this.loadOrders();
     this.loadProducts();
+    this.loadRevenue();
   }
 
   onFileSelected(event: any) {
@@ -95,6 +101,23 @@ export class AdminDashboardComponent {
   loadProducts() {
     this.productApi.list(0, 100).subscribe(res => {
       this.products.set(res.content);
+    });
+  }
+  
+  loadRevenue() {
+    this.http.get<number>(`${this.base}/admin/dashboard/total-revenue`).subscribe(v => this.totalRevenue.set(v));
+    this.http.get<number>(`${this.base}/admin/dashboard/total-orders`).subscribe(v => this.totalOrders.set(v));
+    this.http.get<number>(`${this.base}/admin/dashboard/total-clients`).subscribe(v => this.totalClients.set(v));
+    this.http.get<Record<string, number>>(`${this.base}/admin/dashboard/monthly-revenue`).subscribe(map => {
+      const entries = Object.entries(map).map(([label, amount]) => ({ label, amount }));
+      entries.sort((a, b) => a.label.localeCompare(b.label));
+      this.monthlyRevenue.set(entries);
+      const now = new Date();
+      const year = now.getFullYear();
+      const monthName = now.toLocaleString('en-US', { month: 'long' }).toUpperCase();
+      const key = `${year}-${monthName}`;
+      const found = entries.find(e => e.label === key);
+      this.monthlyTotal.set(found ? found.amount : 0);
     });
   }
 
@@ -170,5 +193,9 @@ export class AdminDashboardComponent {
       case 'ANNULEE': return 'bg-red-100 text-red-800';
       default: return 'bg-gray-100 text-gray-800';
     }
+  }
+  
+  showRevenueTab() {
+    this.activeTab.set('revenue');
   }
 }

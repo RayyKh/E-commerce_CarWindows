@@ -1,11 +1,12 @@
 package com.vitreauto.service;
 
-import com.vitreauto.dto.ProductCreateUpdateDto;
-import com.vitreauto.entity.Product;
-import com.vitreauto.repository.ProductRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import com.vitreauto.dto.ProductCreateUpdateDto;
+import com.vitreauto.entity.Product;
+import com.vitreauto.repository.ProductRepository;
 
 @Service
 public class ProductService {
@@ -20,11 +21,11 @@ public class ProductService {
   }
 
   public Product get(Long id) {
-    return productRepository.findById(id).orElseThrow();
+    return productRepository.findById(id).orElseThrow(() -> new RuntimeException("Product not found"));
   }
 
   public Page<Product> filter(String marque, String modele, Pageable pageable) {
-    if (modele == null || modele.isBlank() || "all".equalsIgnoreCase(modele)) {
+    if (modele == null || modele.trim().isEmpty() || "all".equalsIgnoreCase(modele)) {
       return productRepository.findByMarqueVoitureIgnoreCase(marque, pageable);
     }
     return productRepository.findByMarqueVoitureIgnoreCaseAndModeleVoitureIgnoreCase(marque, modele, pageable);
