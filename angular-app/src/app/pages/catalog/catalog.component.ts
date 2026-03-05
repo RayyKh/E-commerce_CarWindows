@@ -4,11 +4,12 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ProductCardComponent } from '../../components/product-card/product-card.component';
 import { Product } from '../../data/products';
 import { ProductApiService } from '../../services/product-api.service';
+import { CategoriesComponent } from '../../components/categories/categories.component';
 
 @Component({
   selector: 'app-catalog',
   standalone: true,
-  imports: [CommonModule, ProductCardComponent],
+  imports: [CommonModule, ProductCardComponent, CategoriesComponent],
   templateUrl: './catalog.component.html',
   styleUrls: ['./catalog.component.scss'],
 })
@@ -53,10 +54,12 @@ export class CatalogComponent {
     const brand = qp.get('brand') ?? 'all';
     const model = qp.get('model') ?? 'all';
     const year = qp.get('year') ?? 'all';
+    const type = qp.get('type') ?? 'all';
     this.query.set(q);
     this.selectedBrand.set(brand);
     this.selectedModel.set(model);
     this.selectedYear.set(year);
+    this.selectedType.set(type);
     this.loadPage(0);
     this.api.brands().subscribe((list) => this.brandsSig.set(list));
   }

@@ -6,11 +6,13 @@ import { ProductCardComponent } from '../../components/product-card/product-card
 import { products } from '../../data/products';
 import { HERO_IMAGE } from '../../components/assets/assets.component';
 import { ProductApiService } from '../../services/product-api.service';
+import { CategoriesComponent } from '../../components/categories/categories.component';
+import { ScrollAnimateDirective } from '../../directives/scroll-animate.directive';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, FormsModule, ProductCardComponent],
+  imports: [CommonModule, FormsModule, ProductCardComponent, CategoriesComponent, ScrollAnimateDirective],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],
 })

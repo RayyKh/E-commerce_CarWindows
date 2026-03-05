@@ -29,6 +29,7 @@ public class Product {
   private String modeleVoiture;
   @Column(nullable = false)
   private String annee;
+  @Column(columnDefinition = "TEXT")
   private String imageUrl;
   @Column(nullable = false)
   private Integer stock;

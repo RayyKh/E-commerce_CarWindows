@@ -1,0 +1,20 @@
+<section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+  <h2 class="text-2xl md:text-3xl font-bold text-[#1F3A5F] mb-6 text-center">Categories</h2>
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-items-center">
+    <a
+      *ngFor="let c of categories"
+      [routerLink]="['/catalogue']"
+      [queryParams]="{ type: c.key }"
+      sa="fade-up"
+      class="group relative rounded-xl overflow-hidden shadow hover:shadow-lg transition-shadow bg-white w-full sm:w-72"
+    >
+      <img [src]="c.image" [alt]="c.name" class="w-full h-40 object-cover group-hover:scale-105 transition-transform" />
+      <div class="absolute inset-0 bg-black/30"></div>
+      <div class="absolute bottom-0 left-0 right-0 p-4">
+        <div class="inline-block bg-white/95 text-[#1F3A5F] px-3 py-1 rounded-lg font-semibold">
+          {{ c.name }}
+        </div>
+      </div>
+    </a>
+  </div>
+</section>

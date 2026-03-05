@@ -1,8 +1,10 @@
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, signal } from '@angular/core';
+import { Component, OnDestroy, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { environment } from '../../../environments/environment';
+import { AuthApiService } from '../../services/auth-api.service';
 import { ProductApiService } from '../../services/product-api.service';
 
 interface OrderItem {
@@ -41,7 +43,7 @@ interface ProductForm {
   imports: [CommonModule, FormsModule],
   templateUrl: './admin-dashboard.component.html',
 })
-export class AdminDashboardComponent {
+export class AdminDashboardComponent implements OnInit, OnDestroy {
   activeTab = signal<'orders' | 'products' | 'revenue' | 'history'>('orders');
   orders = signal<Order[]>([]);
   products = signal<any[]>([]);
@@ -75,10 +77,27 @@ export class AdminDashboardComponent {
 
   private base = environment.apiUrl;
 
-  constructor(private http: HttpClient, private productApi: ProductApiService) {
+  private refreshTimer: any = null;
+  constructor(private http: HttpClient, private productApi: ProductApiService, private auth: AuthApiService, private router: Router) {}
+
+  ngOnInit() {
     this.loadOrders();
     this.loadProducts();
     this.loadRevenue();
+    this.refreshTimer = setInterval(() => {
+      this.loadOrders();
+      this.loadRevenue();
+    }, 5000);
+  }
+  ngOnDestroy() {
+    if (this.refreshTimer) {
+      clearInterval(this.refreshTimer);
+      this.refreshTimer = null;
+    }
+  }
+  logout() {
+    this.auth.clearToken();
+    this.router.navigate(['/espace-pro']);
   }
 
   onFileSelected(event: any) {

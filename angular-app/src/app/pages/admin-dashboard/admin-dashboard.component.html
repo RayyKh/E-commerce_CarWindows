@@ -2,11 +2,12 @@
   <div class="max-w-7xl mx-auto">
     <div class="flex justify-between items-center mb-8">
       <h1 class="text-3xl font-bold text-[#1F3A5F]">Dashboard Admin</h1>
-      <div class="flex gap-4">
+      <div class="flex gap-4 items-center">
         <button (click)="activeTab.set('orders')" [class.bg-[#1F3A5F]]="activeTab() === 'orders'" [class.text-white]="activeTab() === 'orders'" class="px-4 py-2 rounded border border-[#1F3A5F]">Commandes</button>
         <button (click)="activeTab.set('products')" [class.bg-[#1F3A5F]]="activeTab() === 'products'" [class.text-white]="activeTab() === 'products'" class="px-4 py-2 rounded border border-[#1F3A5F]">Catalogue Produits</button>
         <button (click)="showRevenueTab()" [class.bg-[#1F3A5F]]="activeTab() === 'revenue'" [class.text-white]="activeTab() === 'revenue'" class="px-4 py-2 rounded border border-[#1F3A5F]">Revenu</button>
         <button (click)="activeTab.set('history')" [class.bg-[#1F3A5F]]="activeTab() === 'history'" [class.text-white]="activeTab() === 'history'" class="px-4 py-2 rounded border border-[#1F3A5F]">Historique</button>
+        <button (click)="logout()" class="text-xs text-gray-500 hover:text-gray-700 underline">Déconnexion</button>
       </div>
     </div>
 

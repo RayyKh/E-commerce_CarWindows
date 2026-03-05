@@ -3,11 +3,12 @@ import { Component, Input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { Product } from '../../data/products';
 import { CartService } from '../../services/cart.service';
+import { ScrollAnimateDirective } from '../../directives/scroll-animate.directive';
 
 @Component({
   selector: 'app-product-card',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, ScrollAnimateDirective],
   templateUrl: './product-card.component.html',
   styleUrls: ['./product-card.component.scss'],
 })
