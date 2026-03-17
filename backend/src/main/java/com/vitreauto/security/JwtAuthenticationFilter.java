@@ -32,15 +32,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       return;
     }
     String token = header.substring(7);
-    String username = jwtService.extractUsername(token);
-    if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-      UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-      if (jwtService.isTokenValid(token, userDetails)) {
-        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
-            userDetails, null, userDetails.getAuthorities());
-        auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-        SecurityContextHolder.getContext().setAuthentication(auth);
+    try {
+      String username = jwtService.extractUsername(token);
+      if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+        if (jwtService.isTokenValid(token, userDetails)) {
+          UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
+              userDetails, null, userDetails.getAuthorities());
+          auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+          SecurityContextHolder.getContext().setAuthentication(auth);
+        }
       }
+    } catch (Exception e) {
+      // Token is invalid, expired, etc. We just continue without setting authentication.
+      // This allows access to public endpoints even if the user has an old token.
     }
     filterChain.doFilter(request, response);
   }
