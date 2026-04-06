@@ -1,0 +1,21 @@
+spring:
+  profiles:
+    active: dev
+  datasource:
+    url: jdbc:mysql://localhost:3306/vitreauto?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+    username: root
+    password: root
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+    database-platform: org.hibernate.dialect.MySQLDialect
+security:
+  jwt:
+    secret: 9vZtJpFfQJt3Nf0Eo8RjS6YxC1Kb2Ld5Hg7Pi2Uw4Xy9ZpAbCdEfGhIjKlMnOpQr
+    expiration-ms: 604800000
+server:
+  port: 8080

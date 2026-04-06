@@ -1,0 +1,39 @@
+<div class="min-h-screen bg-[#F5F5F5]">
+  <div class="bg-[#1F3A5F] text-white py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <h1 class="text-3xl md:text-4xl font-bold mb-2">Contact</h1>
+      <p class="text-gray-200">Envoyez-nous vos informations pour finaliser la commande</p>
+    </div>
+  </div>
+
+  <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <form class="bg-white rounded-lg shadow-md p-6" (submit)="submit($event)">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <div>
+          <label class="block text-sm text-gray-600 mb-1">Prénom</label>
+          <input class="w-full border rounded-md p-2" [(ngModel)]="form.firstName" name="firstName" required />
+        </div>
+        <div>
+          <label class="block text-sm text-gray-600 mb-1">Nom</label>
+          <input class="w-full border rounded-md p-2" [(ngModel)]="form.lastName" name="lastName" required />
+        </div>
+      </div>
+      <div class="mb-4">
+        <label class="block text-sm text-gray-600 mb-1">Téléphone</label>
+        <input class="w-full border rounded-md p-2" [(ngModel)]="form.phone" name="phone" required />
+      </div>
+      <div class="mb-4">
+        <label class="block text-sm text-gray-600 mb-1">Adresse</label>
+        <input class="w-full border rounded-md p-2" [(ngModel)]="form.address" name="address" required />
+      </div>
+      <div class="mb-6">
+        <label class="block text-sm text-gray-600 mb-1">Message</label>
+        <textarea class="w-full border rounded-md p-2" rows="4" [(ngModel)]="form.message" name="message"></textarea>
+      </div>
+      <button class="bg-[#1F3A5F] text-white px-6 py-3 rounded-lg font-semibold hover:bg-[#2d5080] transition-colors">
+        Envoyer
+      </button>
+      <div *ngIf="submitted()" class="mt-4 text-green-700">Formulaire envoyé. Merci !</div>
+    </form>
+  </div>
+</div>

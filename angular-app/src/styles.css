@@ -1,0 +1,42 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Global overrides for theme consistency */
+body {
+  background-color: #F5F5F5;
+  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+  color: #1F2A37;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3 {
+  font-family: Montserrat, Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+  letter-spacing: -0.02em;
+}
+
+p, li, span, small {
+  letter-spacing: 0;
+  line-height: 1.6;
+}
+
+.heading-accent {
+  color: #1F3A5F;
+}
+
+.sa {
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity .6s ease, transform .6s ease;
+  will-change: opacity, transform;
+}
+.sa-in {
+  opacity: 1;
+  transform: none;
+}
+.sa-fade-up { transform: translateY(24px); }
+.sa-fade-in { transform: none; }
+.sa-scale-in { transform: scale(.96); }
+.sa-slide-left { transform: translateX(24px); }
+.sa-slide-right { transform: translateX(-24px); }

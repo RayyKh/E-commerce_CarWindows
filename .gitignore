@@ -1,0 +1,28 @@
+# Node / Angular
+angular-app/node_modules/
+angular-app/dist/
+angular-app/.angular/cache/
+
+# Java / Spring
+backend/target/
+.mvn/
+
+# Logs
+*.log
+backend/*.log
+angular-app/*.log
+
+# Env / secrets
+.env
+.env.local
+.env.*.local
+
+# Editor / OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Coverage / reports
+coverage/
+reports/

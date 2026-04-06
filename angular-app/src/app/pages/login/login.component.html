@@ -1,0 +1,19 @@
+<div class="min-h-screen bg-[#F5F5F5] flex items-center justify-center px-4">
+  <form (submit)="onSubmit($event)" class="bg-white rounded-lg shadow p-6 w-full max-w-md">
+    <h1 class="text-xl font-bold text-[#1F3A5F] mb-4">Espace Professionnel</h1>
+    <div class="space-y-4">
+      <div>
+        <label class="block text-sm text-gray-600 mb-1">Identifiant</label>
+        <input [(ngModel)]="email" name="email" type="text" class="w-full border rounded px-3 py-2" placeholder="admin123" />
+      </div>
+      <div>
+        <label class="block text-sm text-gray-600 mb-1">Mot de passe</label>
+        <input [(ngModel)]="password" name="password" type="password" class="w-full border rounded px-3 py-2" placeholder="vitreauto123#" />
+      </div>
+      <div *ngIf="error()" class="text-red-600 text-sm">{{ error() }}</div>
+      <button class="w-full bg-[#1F3A5F] text-white px-4 py-2 rounded hover:bg-[#2d5080]" [disabled]="loading()">
+        Se connecter
+      </button>
+    </div>
+  </form>
+</div>

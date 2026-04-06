@@ -1,0 +1,70 @@
+<div class="min-h-screen bg-[#F5F5F5]">
+  <div class="bg-[#1F3A5F] text-white py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      <h1 class="text-3xl md:text-4xl font-bold mb-2">Catalogue</h1>
+      <p class="text-gray-200">Choisissez par marque, type et disponibilité</p>
+    </div>
+  </div>
+
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+      <aside class="bg-white rounded-lg shadow-md p-6">
+        <h2 class="text-xl font-bold text-[#1F3A5F] mb-4">Filtres</h2>
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm text-gray-600 mb-2">Marque</label>
+            <select class="w-full border rounded-md p-2" [value]="selectedBrand()" (change)="onBrandChange(($any($event.target)).value)">
+              <option value="all">Toutes</option>
+              <option *ngFor="let b of brandsSig()" [value]="b">{{ b }}</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-sm text-gray-600 mb-2">Modèle</label>
+            <select class="w-full border rounded-md p-2" [value]="selectedModel()" (change)="selectedModel.set(($any($event.target)).value)">
+              <option value="all">Tous</option>
+              <option *ngFor="let p of productsSig()" [value]="p.model">{{ p.model }}</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-sm text-gray-600 mb-2">Année</label>
+            <select class="w-full border rounded-md p-2" [value]="selectedYear()" (change)="selectedYear.set(($any($event.target)).value)">
+              <option value="all">Toutes</option>
+              <option *ngFor="let p of productsSig()" [value]="p.year">{{ p.year }}</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-sm text-gray-600 mb-2">Type</label>
+            <select class="w-full border rounded-md p-2" [value]="selectedType()" (change)="selectedType.set(($any($event.target)).value)">
+              <option value="all">Tous</option>
+              <option *ngFor="let t of types()" [value]="t">{{ t }}</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block text-sm text-gray-600 mb-2">Disponibilité</label>
+            <select class="w-full border rounded-md p-2" [value]="selectedAvailability()" (change)="selectedAvailability.set(($any($event.target)).value)">
+              <option value="all">Toutes</option>
+              <option value="En stock">En stock</option>
+              <option value="Sur commande">Sur commande</option>
+              <option value="Rupture">Rupture</option>
+            </select>
+          </div>
+        </div>
+      </aside>
+
+      <section class="lg:col-span-3">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <app-product-card *ngFor="let p of filtered()" [product]="p" />
+        </div>
+        <div class="flex items-center justify-center gap-4 mt-6">
+          <button class="px-3 py-2 border rounded" (click)="prev()" [disabled]="page()===0">Précédent</button>
+          <span>Page {{ page()+1 }} / {{ totalPages() }}</span>
+          <button class="px-3 py-2 border rounded" (click)="next()" [disabled]="page()+1>=totalPages()">Suivant</button>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
