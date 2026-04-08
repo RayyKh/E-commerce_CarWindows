@@ -1,23 +1,22 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, signal } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { ProductCardComponent } from '../../components/product-card/product-card.component';
-import { products } from '../../data/products';
 import { HERO_IMAGE } from '../../components/assets/assets.component';
-import { ProductApiService } from '../../services/product-api.service';
-import { CategoriesComponent } from '../../components/categories/categories.component';
+import { ProductCardComponent } from '../../components/product-card/product-card.component';
+import { Product, products } from '../../data/products';
 import { ScrollAnimateDirective } from '../../directives/scroll-animate.directive';
+import { ProductApiService } from '../../services/product-api.service';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, FormsModule, ProductCardComponent, CategoriesComponent, ScrollAnimateDirective],
+  imports: [CommonModule, FormsModule, ProductCardComponent, ScrollAnimateDirective],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],
 })
 export class HomeComponent {
-  protected readonly featured = products.slice(0, 8);
+  protected readonly featured = signal<Product[]>([]);
   protected readonly query = signal('');
   protected readonly heroImage = HERO_IMAGE;
 
@@ -31,6 +30,9 @@ export class HomeComponent {
 
   constructor(private router: Router, private api: ProductApiService) {
     this.api.brands().subscribe((list) => this.brandsSig.set(list));
+    this.api.list(0, 8, 'createdAt,desc').subscribe((page) => {
+      this.featured.set(page.content.map(p => this.api.toFrontend(p)));
+    });
   }
   onSearch(e: Event) {
     e.preventDefault();

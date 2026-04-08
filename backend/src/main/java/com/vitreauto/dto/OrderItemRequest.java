@@ -11,4 +11,6 @@ public class OrderItemRequest {
   @NotNull
   @Min(1)
   private Integer quantity;
+  private String side;
+  private String fixation;
 }

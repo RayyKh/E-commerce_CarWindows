@@ -40,7 +40,12 @@ export class CheckoutComponent {
     }
 
     this.submitting.set(true);
-    const products = this.items().map((i) => ({ productId: Number(i.id), quantity: i.quantity }));
+    const products = this.items().map((i) => ({ 
+      productId: Number(i.id), 
+      quantity: i.quantity,
+      side: i.side,
+      fixation: i.fixation
+    }));
     this.orders
       .createOrder({
         products,

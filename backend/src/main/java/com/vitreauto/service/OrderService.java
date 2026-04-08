@@ -70,6 +70,8 @@ public class OrderService {
       item.setProduct(product);
       item.setQuantity(itemReq.getQuantity());
       item.setPrice(product.getPrix());
+      item.setSide(itemReq.getSide());
+      item.setFixation(itemReq.getFixation());
       orderItemRepository.save(item);
       product.setStock(product.getStock() - itemReq.getQuantity());
       productRepository.save(product);

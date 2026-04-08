@@ -51,6 +51,13 @@ export class ProductApiService {
     });
   }
 
+  adminSearch(query: string = '', marque: string = 'all', page: number = 0, size: number = 10) {
+    let url = `${this.base}/admin/products/search?page=${page}&size=${size}`;
+    if (query) url += `&query=${encodeURIComponent(query)}`;
+    if (marque && marque !== 'all') url += `&marque=${encodeURIComponent(marque)}`;
+    return this.http.get<any>(url);
+  }
+
   get(id: string) {
     return this.http.get<ApiProduct>(`${this.base}/products/${id}`);
   }
@@ -75,5 +82,28 @@ export class ProductApiService {
 
   adminDelete(id: string) {
     return this.http.delete(`${this.base}/admin/products/${id}`);
+  }
+
+  adminDeleteAll() {
+    return this.http.delete(`${this.base}/admin/products/all`);
+  }
+
+  // Files management
+  uploadCSV(file: File) {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post(`${this.base}/admin/files/upload`, formData, { responseType: 'text' });
+  }
+
+  getCSVFiles() {
+    return this.http.get<string[]>(`${this.base}/admin/files`);
+  }
+
+  deleteCSVFile(filename: string) {
+    return this.http.delete(`${this.base}/admin/files/${filename}`, { responseType: 'text' });
+  }
+
+  downloadCSV(filename: string) {
+    return this.http.get(`${this.base}/admin/files/${filename}`, { responseType: 'blob' });
   }
 }

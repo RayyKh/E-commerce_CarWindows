@@ -4,12 +4,11 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ProductCardComponent } from '../../components/product-card/product-card.component';
 import { Product } from '../../data/products';
 import { ProductApiService } from '../../services/product-api.service';
-import { CategoriesComponent } from '../../components/categories/categories.component';
 
 @Component({
   selector: 'app-catalog',
   standalone: true,
-  imports: [CommonModule, ProductCardComponent, CategoriesComponent],
+  imports: [CommonModule, ProductCardComponent],
   templateUrl: './catalog.component.html',
   styleUrls: ['./catalog.component.scss'],
 })

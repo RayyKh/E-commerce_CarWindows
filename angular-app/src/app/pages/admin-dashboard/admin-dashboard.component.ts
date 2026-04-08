@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, OnDestroy, OnInit, signal } from '@angular/core';
+import { Component, computed, OnDestroy, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { environment } from '../../../environments/environment';
@@ -12,6 +12,8 @@ interface OrderItem {
   product: { nom: string; marqueVoiture: string; modeleVoiture: string };
   quantity: number;
   price: number;
+  side?: string;
+  fixation?: string;
 }
 
 interface Order {
@@ -47,6 +49,16 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
   activeTab = signal<'orders' | 'products' | 'revenue' | 'history'>('orders');
   orders = signal<Order[]>([]);
   products = signal<any[]>([]);
+  
+  // Filtering & Pagination
+  searchTerm = signal<string>('');
+  selectedBrandFilter = signal<string>('all');
+  currentPage = signal<number>(0);
+  pageSize = 10;
+  totalPages = signal<number>(0);
+  totalProducts = signal<number>(0);
+  csvFiles = signal<string[]>([]);
+
   totalRevenue = signal<number>(0);
   totalOrders = signal<number>(0);
   totalClients = signal<number>(0);
@@ -83,11 +95,26 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.loadOrders();
     this.loadProducts();
+    this.loadCSVFiles();
     this.loadRevenue();
     this.refreshTimer = setInterval(() => {
       this.loadOrders();
       this.loadRevenue();
     }, 5000);
+  }
+
+  loadCSVFiles() {
+    this.productApi.getCSVFiles().subscribe(files => {
+      this.csvFiles.set(files);
+    });
+  }
+
+  deleteCSVFile(filename: string) {
+    if (confirm(`Supprimer le fichier ${filename} ?`)) {
+      this.productApi.deleteCSVFile(filename).subscribe(() => {
+        this.loadCSVFiles();
+      });
+    }
   }
   ngOnDestroy() {
     if (this.refreshTimer) {
@@ -118,10 +145,36 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
   }
 
   loadProducts() {
-    this.productApi.list(0, 100).subscribe(res => {
+    const query = this.searchTerm().trim();
+    const brand = this.selectedBrandFilter();
+    
+    this.productApi.adminSearch(query, brand, this.currentPage(), this.pageSize).subscribe(res => {
       this.products.set(res.content);
+      this.totalPages.set(res.totalPages);
+      this.totalProducts.set(res.totalElements);
     });
   }
+
+  onFilterChange() {
+    this.currentPage.set(0);
+    this.loadProducts();
+  }
+
+  prevPage() {
+    if (this.currentPage() > 0) {
+      this.currentPage.update(p => p - 1);
+      this.loadProducts();
+    }
+  }
+
+  nextPage() {
+    if (this.currentPage() < this.totalPages() - 1) {
+      this.currentPage.update(p => p + 1);
+      this.loadProducts();
+    }
+  }
+
+  filteredProducts = computed(() => this.products());
   
   loadRevenue() {
     this.http.get<number>(`${this.base}/admin/dashboard/total-revenue`).subscribe(v => this.totalRevenue.set(v));
@@ -202,6 +255,126 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
         this.loadProducts();
       });
     }
+  }
+
+  deleteAllProducts() {
+    if (confirm('ATTENTION : Êtes-vous sûr de vouloir supprimer TOUS les produits du catalogue ? Cette action est irréversible.')) {
+      this.productApi.adminDeleteAll().subscribe(() => {
+        this.loadProducts();
+      });
+    }
+  }
+
+  async importFromCSV(event: any) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    // First upload to server
+    this.productApi.uploadCSV(file).subscribe(() => {
+      this.loadCSVFiles();
+      
+      const reader = new FileReader();
+      reader.onload = async (e: any) => {
+        const content = e.target.result;
+        const lines = content.split('\n');
+        const header = lines[0].split(';');
+        
+        const productsToImport = [];
+        for (let i = 1; i < lines.length; i++) {
+          if (!lines[i].trim()) continue;
+          const values = lines[i].split(';');
+        const p: any = {};
+        header.forEach((col: string, idx: number) => {
+          const key = col.trim();
+          let val = values[idx]?.trim() || '';
+          if (key === 'prix' || key === 'stock') {
+            p[key] = parseFloat(val) || 0;
+            if (key === 'stock') {
+              if (p[key] === 0) p['status'] = 'Épuisé';
+              else if (p[key] >= 1) p['status'] = 'En stock';
+            }
+          } else if (key === 'imageUrl') {
+            // Transform filenames to accessible API URLs
+            const filename = val.split('/').pop() || val.split('\\').pop();
+            if (filename && filename.trim() !== '') {
+              p[key] = `http://localhost:8081/api/images/${filename.trim()}`;
+            } else {
+              p[key] = 'https://placehold.jp/600x400.png?text=VitreAuto';
+            }
+          } else {
+            p[key] = val;
+          }
+        });
+        productsToImport.push(p);
+        }
+
+        if (confirm(`Voulez-vous importer ${productsToImport.length} produits ?`)) {
+          let count = 0;
+          for (const p of productsToImport) {
+            try {
+              await this.productApi.adminCreate(p).toPromise();
+              count++;
+            } catch (err) {
+              console.error('Erreur import produit:', p.nom, err);
+            }
+          }
+          alert(`${count} produits importés avec succès !`);
+          this.loadProducts();
+        }
+      };
+      reader.readAsText(file);
+    });
+  }
+
+  async importExistingCSV(filename: string) {
+    this.productApi.downloadCSV(filename).subscribe(async (blob: Blob) => {
+      const text = await blob.text();
+      const lines = text.split('\n');
+      const header = lines[0].split(';');
+      
+      const productsToImport = [];
+      for (let i = 1; i < lines.length; i++) {
+        if (!lines[i].trim()) continue;
+        const values = lines[i].split(';');
+        const p: any = {};
+        header.forEach((col: string, idx: number) => {
+          const key = col.trim();
+          let val = values[idx]?.trim() || '';
+          if (key === 'prix' || key === 'stock') {
+            p[key] = parseFloat(val) || 0;
+            if (key === 'stock') {
+              if (p[key] === 0) p['status'] = 'Épuisé';
+              else if (p[key] >= 1) p['status'] = 'En stock';
+            }
+          } else if (key === 'imageUrl') {
+            // If image path starts with /images/, transform it to our API endpoint
+            const filename = val.split('/').pop() || val.split('\\').pop();
+            if (filename && filename.trim() !== '') {
+              p[key] = `http://localhost:8081/api/images/${filename.trim()}`;
+            } else {
+              p[key] = 'https://placehold.jp/600x400.png?text=VitreAuto';
+            }
+          } else {
+            p[key] = val;
+          }
+        });
+        productsToImport.push(p);
+      }
+
+      if (confirm(`Voulez-vous importer ${productsToImport.length} produits à partir du fichier ${filename} ?`)) {
+        let count = 0;
+        for (const p of productsToImport) {
+          try {
+            await this.productApi.adminCreate(p).toPromise();
+            count++;
+          } catch (err) {
+            console.error('Erreur import produit:', p.nom, err);
+          }
+        }
+        alert(`${count} produits importés avec succès !`);
+        this.loadProducts();
+      }
+    });
   }
 
   statusClass(status: string) {

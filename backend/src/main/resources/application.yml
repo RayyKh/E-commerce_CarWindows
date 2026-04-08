@@ -19,3 +19,7 @@ security:
     expiration-ms: 604800000
 server:
   port: 8080
+
+app:
+  upload:
+    dir: c:/Users/dell/Downloads/Site web vitrine automobile/product_images_v3/

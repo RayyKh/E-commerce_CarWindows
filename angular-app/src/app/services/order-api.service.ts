@@ -5,6 +5,8 @@ import { environment } from '../../environments/environment';
 interface OrderItemRequest {
   productId: number;
   quantity: number;
+  side?: string;
+  fixation?: string;
 }
 interface OrderRequest {
   products: OrderItemRequest[];

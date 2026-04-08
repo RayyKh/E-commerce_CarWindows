@@ -3,6 +3,7 @@ package com.vitreauto.service;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.vitreauto.dto.ProductCreateUpdateDto;
 import com.vitreauto.entity.Product;
@@ -16,8 +17,20 @@ public class ProductService {
     this.productRepository = productRepository;
   }
 
+  @Transactional
+  public void deleteAll() {
+    productRepository.deleteAll();
+  }
+
   public Page<Product> list(Pageable pageable) {
     return productRepository.findAll(pageable);
+  }
+
+  public Page<Product> search(String marque, String query, Pageable pageable) {
+    if ("all".equalsIgnoreCase(marque)) {
+      marque = null;
+    }
+    return productRepository.findBySearch(marque, query, pageable);
   }
 
   public Product get(Long id) {
@@ -41,7 +54,13 @@ public class ProductService {
     p.setAnnee(dto.getAnnee());
     p.setImageUrl(dto.getImageUrl());
     p.setStock(dto.getStock());
-    p.setStatus(dto.getStatus());
+    if (dto.getStock() != null && dto.getStock() == 0) {
+      p.setStatus("Épuisé");
+    } else if (dto.getStock() != null && dto.getStock() >= 1) {
+      p.setStatus("En stock");
+    } else {
+      p.setStatus(dto.getStatus());
+    }
     return productRepository.save(p);
   }
 
@@ -55,7 +74,13 @@ public class ProductService {
     p.setAnnee(dto.getAnnee());
     p.setImageUrl(dto.getImageUrl());
     p.setStock(dto.getStock());
-    p.setStatus(dto.getStatus());
+    if (dto.getStock() != null && dto.getStock() == 0) {
+      p.setStatus("Épuisé");
+    } else if (dto.getStock() != null && dto.getStock() >= 1) {
+      p.setStatus("En stock");
+    } else {
+      p.setStatus(dto.getStatus());
+    }
     return productRepository.save(p);
   }
 

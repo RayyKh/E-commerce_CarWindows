@@ -21,6 +21,10 @@ public class OrderItem {
   private BigDecimal price;
   @ManyToOne(optional = false)
   private Product product;
+  @Column
+  private String side;
+  @Column
+  private String fixation;
   @ManyToOne(optional = false)
   @com.fasterxml.jackson.annotation.JsonIgnore
   private Order order;
