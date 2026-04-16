@@ -2,12 +2,36 @@
   <div class="max-w-7xl mx-auto">
     <div class="flex justify-between items-center mb-8">
       <h1 class="text-3xl font-bold text-[#1F3A5F]">Dashboard Admin</h1>
-      <div class="flex gap-4 items-center">
-        <button (click)="activeTab.set('orders')" [class.bg-[#1F3A5F]]="activeTab() === 'orders'" [class.text-white]="activeTab() === 'orders'" class="px-4 py-2 rounded border border-[#1F3A5F]">Commandes</button>
-        <button (click)="activeTab.set('products')" [class.bg-[#1F3A5F]]="activeTab() === 'products'" [class.text-white]="activeTab() === 'products'" class="px-4 py-2 rounded border border-[#1F3A5F]">Catalogue Produits</button>
-        <button (click)="showRevenueTab()" [class.bg-[#1F3A5F]]="activeTab() === 'revenue'" [class.text-white]="activeTab() === 'revenue'" class="px-4 py-2 rounded border border-[#1F3A5F]">Revenu</button>
-        <button (click)="activeTab.set('history')" [class.bg-[#1F3A5F]]="activeTab() === 'history'" [class.text-white]="activeTab() === 'history'" class="px-4 py-2 rounded border border-[#1F3A5F]">Historique</button>
-        <button (click)="logout()" class="text-xs text-gray-500 hover:text-gray-700 underline">Déconnexion</button>
+      <div class="flex flex-wrap gap-4 items-center">
+        <button 
+          (click)="setActiveTab('orders')" 
+          [class]="activeTab() === 'orders' ? 'bg-[#1F3A5F] text-white' : 'bg-white text-[#1F3A5F] hover:bg-gray-50'"
+          class="px-4 py-2 rounded-md font-semibold transition-all border border-[#1F3A5F] shadow-sm"
+        >
+          Commandes
+        </button>
+        <button 
+          (click)="setActiveTab('products')" 
+          [class]="activeTab() === 'products' ? 'bg-[#1F3A5F] text-white' : 'bg-white text-[#1F3A5F] hover:bg-gray-50'"
+          class="px-4 py-2 rounded-md font-semibold transition-all border border-[#1F3A5F] shadow-sm"
+        >
+          Catalogue Produits
+        </button>
+        <button 
+          (click)="setActiveTab('revenue')" 
+          [class]="activeTab() === 'revenue' ? 'bg-[#1F3A5F] text-white' : 'bg-white text-[#1F3A5F] hover:bg-gray-50'"
+          class="px-4 py-2 rounded-md font-semibold transition-all border border-[#1F3A5F] shadow-sm"
+        >
+          Revenu
+        </button>
+        <button 
+          (click)="setActiveTab('history')" 
+          [class]="activeTab() === 'history' ? 'bg-[#1F3A5F] text-white' : 'bg-white text-[#1F3A5F] hover:bg-gray-50'"
+          class="px-4 py-2 rounded-md font-semibold transition-all border border-[#1F3A5F] shadow-sm"
+        >
+          Historique
+        </button>
+        <button (click)="logout()" class="ml-4 text-xs text-gray-400 hover:text-red-500 transition-colors underline decoration-dotted underline-offset-4">Déconnexion</button>
       </div>
     </div>
 
@@ -94,6 +118,16 @@
             >
               <option value="all">Toutes les marques</option>
               <option *ngFor="let brand of brands" [value]="brand">{{ brand }}</option>
+            </select>
+            <select 
+              [(ngModel)]="selectedAvailabilityFilter" 
+              (change)="onFilterChange()"
+              class="border p-2 rounded-md focus:ring-[#1F3A5F] focus:border-[#1F3A5F]"
+            >
+              <option value="all">Toutes les disponibilités</option>
+              <option value="En stock">En stock</option>
+              <option value="Sur commande">Sur commande</option>
+              <option value="Épuisé">Épuisé</option>
             </select>
           </div>
         </div>
@@ -243,23 +277,67 @@
     <!-- Section Revenu -->
     <div *ngIf="activeTab() === 'revenue'" class="space-y-6">
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div class="bg-white rounded-lg shadow p-6">
-          <div class="text-sm text-gray-500">Revenu total</div>
-          <div class="text-3xl font-bold text-[#1F3A5F] mt-2">{{ totalRevenue() | number:'1.0-0' }} DT</div>
+        <div class="bg-white rounded-lg shadow-md p-6 border-b-4 border-[#4cb0ff]">
+          <div class="text-sm text-gray-500 font-bold uppercase tracking-wider mb-1">Revenu total</div>
+          <div class="text-3xl font-extrabold text-[#1F3A5F]">{{ totalRevenue() }} DT</div>
         </div>
-        <div class="bg-white rounded-lg shadow p-6">
-          <div class="text-sm text-gray-500">Commandes</div>
-          <div class="text-3xl font-bold text-[#1F3A5F] mt-2">{{ totalOrders() }}</div>
+        <div class="bg-white rounded-lg shadow-md p-6 border-b-4 border-green-500">
+          <div class="text-sm text-gray-500 font-bold uppercase tracking-wider mb-1">Commandes</div>
+          <div class="text-3xl font-extrabold text-[#1F3A5F]">{{ totalOrders() }}</div>
         </div>
-        <div class="bg-white rounded-lg shadow p-6">
-          <div class="text-sm text-gray-500">Clients</div>
-          <div class="text-3xl font-bold text-[#1F3A5F] mt-2">{{ totalClients() }}</div>
+        <div class="bg-white rounded-lg shadow-md p-6 border-b-4 border-purple-500">
+          <div class="text-sm text-gray-500 font-bold uppercase tracking-wider mb-1">Clients</div>
+          <div class="text-3xl font-extrabold text-[#1F3A5F]">{{ totalClients() }}</div>
         </div>
       </div>
-      <div class="bg-white rounded-lg shadow p-6">
-        <h2 class="text-xl font-bold text-[#1F3A5F] mb-2">Revenu de ce mois</h2>
-        <div class="text-4xl font-extrabold text-[#1F3A5F] tracking-tight">{{ monthlyTotal() | number:'1.0-0' }} DT</div>
-        <div class="text-sm text-gray-500 mt-2">Basé sur les commandes enregistrées ce mois-ci.</div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div class="bg-white rounded-xl shadow-md p-6">
+          <h3 class="text-lg font-bold text-[#1F3A5F] mb-6 flex items-center gap-2">
+            <svg class="w-5 h-5 text-[#4cb0ff]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
+            </svg>
+            Évolution du Revenu
+          </h3>
+          
+          <div *ngIf="monthlyRevenue().length === 0" class="h-64 flex items-center justify-center border-2 border-dashed border-gray-100 rounded-xl text-gray-400 italic">
+            Aucune donnée de vente disponible pour le moment.
+          </div>
+
+          <div class="h-64 relative" [class.hidden]="monthlyRevenue().length === 0">
+            <canvas id="revenueChart"></canvas>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-md p-6">
+          <h3 class="text-lg font-bold text-[#1F3A5F] mb-6 flex items-center gap-2">
+            <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            </svg>
+            Répartition par Marque
+          </h3>
+
+          <div *ngIf="brandStats().length === 0" class="flex items-center justify-center h-64 text-gray-400 italic">
+            En attente de commandes...
+          </div>
+
+          <div class="space-y-5 max-h-64 overflow-y-auto pr-2 custom-scrollbar">
+            <div *ngFor="let b of brandStats()" class="relative group">
+              <div class="flex items-center justify-between mb-1.5">
+                <span class="text-xs font-bold text-[#1F3A5F] uppercase tracking-wide group-hover:text-[#4cb0ff] transition-colors">{{ b.label }}</span>
+                <div class="flex items-center gap-2">
+                  <span class="text-[10px] text-gray-400 font-medium">{{ b.count }} ventes</span>
+                  <span class="text-xs font-black text-[#4cb0ff]">{{ b.percent }}%</span>
+                </div>
+              </div>
+              <div class="overflow-hidden h-2.5 rounded-full bg-gray-100 shadow-inner">
+                <div [style.width.%]="b.percent" 
+                  class="h-full rounded-full bg-gradient-to-r from-[#4cb0ff] to-[#1F3A5F] transition-all duration-1000 ease-out">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
     

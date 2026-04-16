@@ -26,6 +26,7 @@ export class ProductDetailComponent implements OnDestroy {
    protected readonly selectedSide = signal<string>('gauche / conducteur');
    protected readonly selectedFixation = signal<string>('Clipsable');
    protected readonly activeTab = signal<string>('description');
+   protected readonly showZoom = signal(false);
 
    protected readonly similar = computed(() =>
     this.all()

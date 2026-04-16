@@ -51,11 +51,22 @@ export class ProductApiService {
     });
   }
 
-  adminSearch(query: string = '', marque: string = 'all', page: number = 0, size: number = 10) {
+  adminSearch(query: string = '', marque: string = 'all', page: number = 0, size: number = 10, availability: string = 'all') {
     let url = `${this.base}/admin/products/search?page=${page}&size=${size}`;
     if (query) url += `&query=${encodeURIComponent(query)}`;
     if (marque && marque !== 'all') url += `&marque=${encodeURIComponent(marque)}`;
+    if (availability && availability !== 'all') url += `&availability=${encodeURIComponent(availability)}`;
     return this.http.get<any>(url);
+  }
+
+  searchPaged(marque: string = 'all', modele: string = 'all', annee: string = 'all', availability: string = 'all', query: string = '', page = 0, size = 12, sort = 'createdAt,desc') {
+    let url = `${this.base}/products/search?page=${page}&size=${size}&sort=${sort}`;
+    if (marque && marque !== 'all') url += `&marque=${encodeURIComponent(marque)}`;
+    if (modele && modele !== 'all') url += `&modele=${encodeURIComponent(modele)}`;
+    if (annee && annee !== 'all') url += `&annee=${encodeURIComponent(annee)}`;
+    if (availability && availability !== 'all') url += `&availability=${encodeURIComponent(availability)}`;
+    if (query) url += `&query=${encodeURIComponent(query)}`;
+    return this.http.get<PageResponse<ApiProduct>>(url);
   }
 
   get(id: string) {

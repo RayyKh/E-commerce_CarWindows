@@ -26,11 +26,13 @@ public class ProductService {
     return productRepository.findAll(pageable);
   }
 
-  public Page<Product> search(String marque, String query, Pageable pageable) {
-    if ("all".equalsIgnoreCase(marque)) {
-      marque = null;
-    }
-    return productRepository.findBySearch(marque, query, pageable);
+  public Page<Product> search(String marque, String modele, String annee, String availability, String query, Pageable pageable) {
+    if (marque != null && (marque.trim().isEmpty() || "all".equalsIgnoreCase(marque))) marque = null;
+    if (modele != null && (modele.trim().isEmpty() || "all".equalsIgnoreCase(modele))) modele = null;
+    if (annee != null && (annee.trim().isEmpty() || "all".equalsIgnoreCase(annee))) annee = null;
+    if (availability != null && (availability.trim().isEmpty() || "all".equalsIgnoreCase(availability))) availability = null;
+    if (query != null && query.trim().isEmpty()) query = null;
+    return productRepository.findBySearch(marque, modele, annee, availability, query, pageable);
   }
 
   public Product get(Long id) {

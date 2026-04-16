@@ -77,16 +77,34 @@ public class ProductController {
     return ResponseEntity.noContent().build();
   }
 
-  @GetMapping("/admin/products/search")
-  public ResponseEntity<Page<Product>> search(
+  @GetMapping("/products/search")
+  public ResponseEntity<Page<Product>> searchPublic(
       @RequestParam(value = "marque", required = false) String marque,
+      @RequestParam(value = "modele", required = false) String modele,
+      @RequestParam(value = "annee", required = false) String annee,
+      @RequestParam(value = "availability", required = false) String availability,
+      @RequestParam(value = "query", required = false) String query,
+      @RequestParam(name = "page", defaultValue = "0") int page,
+      @RequestParam(name = "size", defaultValue = "12") int size,
+      @RequestParam(name = "sort", defaultValue = "createdAt,desc") String sort) {
+    String[] s = sort.split(",");
+    Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.fromString(s[1]), s[0]));
+    return ResponseEntity.ok(productService.search(marque, modele, annee, availability, query, pageable));
+  }
+
+  @GetMapping("/admin/products/search")
+  public ResponseEntity<Page<Product>> searchAdmin(
+      @RequestParam(value = "marque", required = false) String marque,
+      @RequestParam(value = "modele", required = false) String modele,
+      @RequestParam(value = "annee", required = false) String annee,
+      @RequestParam(value = "availability", required = false) String availability,
       @RequestParam(value = "query", required = false) String query,
       @RequestParam(name = "page", defaultValue = "0") int page,
       @RequestParam(name = "size", defaultValue = "10") int size,
       @RequestParam(name = "sort", defaultValue = "id,asc") String sort) {
     String[] s = sort.split(",");
     Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.fromString(s[1]), s[0]));
-    return ResponseEntity.ok(productService.search(marque, query, pageable));
+    return ResponseEntity.ok(productService.search(marque, modele, annee, availability, query, pageable));
   }
 
   @GetMapping("/admin/products/out-of-stock")

@@ -1,32 +1,48 @@
-<section class="relative text-white">
+<section class="relative text-white z-[60]">
   <img [src]="heroImage" alt="Installation de vitrage automobile" class="absolute inset-0 w-full h-full object-cover">
   <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 min-h-[460px] flex items-center justify-center">
     <div class="max-w-3xl text-center">
-      <h1 sa="fade-up" class="text-3xl md:text-6xl font-extrabold leading-tight mb-4">
-        Le rétroviseur <span class="text-[#4cb0ff]">idéal</span> pour votre voiture
+      <h1 sa="fade-up" class="text-3xl md:text-5xl font-extrabold leading-tight mb-4">
+        Vos miroirs de rétroviseur <span class="text-[#4cb0ff]">comme neufs</span> en quelques minutes.
       </h1>
       <p sa="fade-up" class="text-gray-200 text-lg md:text-xl mb-8">
         Large choix de rétroviseurs automobiles de qualité, compatibles avec de nombreux modèles et disponibles en Tunisie au meilleur prix.
       </p>
-      <form sa="fade-up" (submit)="onSearch($event)" class="bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl p-4 sm:p-5 max-w-3xl mx-auto">
+      <form sa="fade-up" (submit)="onSearch($event)" class="bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl p-4 sm:p-5 max-w-3xl mx-auto relative z-[70]">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-          <div class="md:col-span-1">
-            <select class="w-full px-4 py-3 rounded-lg border border-gray-200 text-gray-800"
-                    [ngModel]="selectedBrand()" (ngModelChange)="onBrandChange($event)" name="brand">
-              <option value="all">Marque</option>
-              <option *ngFor="let b of brandsSig()" [value]="b">{{ b }}</option>
-            </select>
+          <div class="md:col-span-2 relative">
+            <input 
+              type="text" 
+              [ngModel]="query()" 
+              (ngModelChange)="onQueryChange($event)"
+              name="query"
+              placeholder="Rechercher par voiture ou modèle " 
+              class="w-full px-4 py-3 rounded-lg border border-gray-200 text-gray-800 focus:ring-2 focus:ring-[#4cb0ff] focus:border-transparent outline-none transition-all"
+              autocomplete="off"
+              (focus)="query().length >= 2 && showSuggestions.set(true)"
+            />
+            
+            <!-- Auto-complétion dropdown -->
+            <div *ngIf="showSuggestions()" class="absolute z-[100] left-0 right-0 mt-2 bg-white rounded-xl shadow-2xl border border-gray-100 overflow-hidden">
+              <div *ngFor="let s of suggestions()" 
+                (click)="selectSuggestion(s)"
+                class="px-4 py-3 hover:bg-gray-50 cursor-pointer flex items-center gap-3 transition-colors border-b border-gray-50 last:border-0 opacity-100">
+                <img [src]="s.image" class="w-10 h-10 object-cover rounded-md" />
+                <div class="text-left">
+                  <div class="font-bold text-[#1F3A5F] text-sm">{{ s.name }}</div>
+                  <div class="text-xs text-gray-400">{{ s.brand }} {{ s.model }} • {{ s.year }}</div>
+                </div>
+                <div class="ml-auto font-bold text-[#4cb0ff] text-sm">{{ s.price }} DT</div>
+              </div>
+            </div>
           </div>
+
           <div class="md:col-span-1">
-            <select class="w-full px-4 py-3 rounded-lg border border-gray-200 text-gray-800"
-                    [ngModel]="selectedYear()" (ngModelChange)="selectedYear.set($event)" name="year">
-              <option value="all">Année</option>
-              <option *ngFor="let y of years()" [value]="y">{{ y }}</option>
-            </select>
-          </div>
-          <div class="md:col-span-1">
-            <button class="w-full bg-[#1F3A5F] text-white px-5 py-3 rounded-lg font-semibold hover:bg-[#2d5080] transition-colors">
-              Rechercher
+            <button type="submit" class="w-full h-full bg-[#4cb0ff] hover:bg-[#3a96e0] text-white font-bold py-3 px-6 rounded-lg transition-all shadow-lg hover:shadow-[#4cb0ff]/20 flex items-center justify-center gap-2">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              Trouver
             </button>
           </div>
         </div>
@@ -35,9 +51,149 @@
   </div>
 </section>
 
-<section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-  <h2 class="text-2xl md:text-3xl font-bold text-[#1F3A5F] mb-6 text-center">Produits populaires</h2>
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-    <app-product-card *ngFor="let p of featured()" [product]="p" />
+<!-- Section Pourquoi nous ? -->
+<section class="py-16 bg-white">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+      <div sa="fade-up" class="text-center group">
+        <div class="w-16 h-16 mx-auto bg-[#4cb0ff]/10 rounded-2xl flex items-center justify-center mb-4 group-hover:bg-[#4cb0ff] transition-colors duration-300">
+          <svg class="w-8 h-8 text-[#4cb0ff] group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+          </svg>
+        </div>
+        <h3 class="text-lg font-bold text-[#1F3A5F] mb-2">Qualité certifiée</h3>
+        <p class="text-gray-500 text-sm">Produits testés et conformes aux normes constructeurs.</p>
+      </div>
+      <div sa="fade-up" [saDelay]="100" class="text-center group">
+        <div class="w-16 h-16 mx-auto bg-[#4cb0ff]/10 rounded-2xl flex items-center justify-center mb-4 group-hover:bg-[#4cb0ff] transition-colors duration-300">
+          <svg class="w-8 h-8 text-[#4cb0ff] group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
+        </div>
+        <h3 class="text-lg font-bold text-[#1F3A5F] mb-2">Installation facile</h3>
+        <p class="text-gray-500 text-sm">Miroirs clipsables prêts à poser en quelques minutes.</p>
+      </div>
+      <div sa="fade-up" [saDelay]="200" class="text-center group">
+        <div class="w-16 h-16 mx-auto bg-[#4cb0ff]/10 rounded-2xl flex items-center justify-center mb-4 group-hover:bg-[#4cb0ff] transition-colors duration-300">
+          <svg class="w-8 h-8 text-[#4cb0ff] group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-24 0 9 9 0 0124 0z" />
+          </svg>
+        </div>
+        <h3 class="text-lg font-bold text-[#1F3A5F] mb-2">Livraison rapide</h3>
+        <p class="text-gray-500 text-sm">Expédition partout en Tunisie sous 24/48h.</p>
+      </div>
+      <div sa="fade-up" [saDelay]="300" class="text-center group">
+        <div class="w-16 h-16 mx-auto bg-[#4cb0ff]/10 rounded-2xl flex items-center justify-center mb-4 group-hover:bg-[#4cb0ff] transition-colors duration-300">
+          <svg class="w-8 h-8 text-[#4cb0ff] group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+          </svg>
+        </div>
+        <h3 class="text-lg font-bold text-[#1F3A5F] mb-2">Paiement à la livraison</h3>
+        <p class="text-gray-500 text-sm">Commandez en toute confiance et payez à réception.</p>
+      </div>
+    </div>
   </div>
 </section>
+
+<!-- Produits populaires -->
+<section class="py-16 bg-[#F8FAFC]">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center mb-12">
+      <h2 sa="fade-up" class="text-3xl font-bold text-[#1F3A5F] mb-4">Produits populaires</h2>
+      <p sa="fade-up" class="text-gray-500">Nos meilleures ventes de miroirs de rétroviseur.</p>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <app-product-card *ngFor="let p of featured()" [product]="p" />
+    </div>
+    <div class="text-center mt-12">
+        <button (click)="goToCatalog()" class="inline-flex items-center gap-3 bg-[#1F3A5F] hover:bg-[#2d5080] text-white px-8 py-4 rounded-xl font-bold transition-all shadow-lg hover:shadow-[#1F3A5F]/20 active:scale-95">
+          Voir tout le catalogue
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+          </svg>
+        </button>
+      </div>
+  </div>
+</section>
+
+<!-- Témoignages / Preuve sociale -->
+  <section class="py-20 bg-gradient-to-b from-[#F8FAFC] to-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-16">
+        <span class="inline-block px-4 py-1.5 mb-4 text-xs font-bold tracking-widest text-[#4cb0ff] uppercase bg-[#4cb0ff]/10 rounded-full">
+          Avis clients
+        </span>
+        <h2 sa="fade-up" class="text-3xl md:text-4xl font-extrabold text-[#1F3A5F] mb-4">Ce que disent nos clients</h2>
+        <div class="flex flex-col items-center gap-2">
+          <div class="flex justify-center gap-1 text-yellow-400">
+            <svg *ngFor="let i of [1,2,3,4,5]" class="w-6 h-6 fill-current" viewBox="0 0 20 20">
+              <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+            </svg>
+          </div>
+          <p sa="fade-up" class="text-gray-500 font-medium">"Plus de 500 clients satisfaits en Tunisie"</p>
+        </div>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <!-- Card 1 -->
+        <div sa="fade-up" class="group bg-white p-8 rounded-3xl border border-gray-100 shadow-sm hover:shadow-xl hover:-translate-y-2 transition-all duration-300 relative overflow-hidden">
+          <div class="absolute top-0 right-0 w-24 h-24 bg-[#4cb0ff]/5 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-150"></div>
+          <svg class="w-10 h-10 text-[#4cb0ff]/20 mb-6" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M14.017 21L14.017 18C14.017 16.8954 14.9124 16 16.017 16H19.017C19.5693 16 20.017 15.5523 20.017 15V9C20.017 8.44772 19.5693 8 19.017 8H15.017C14.4647 8 14.017 8.44772 14.017 9V11M14.017 21H7.01701V14.017C7.01701 11.8079 8.80787 10.017 11.017 10.017H11.017M14.017 21L14.017 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+            <path d="M3.983 21V18C3.983 16.8954 4.87843 16 5.983 16H8.983C9.53528 16 9.983 15.5523 9.983 15V9C9.983 8.44772 9.53528 8 8.983 8H4.983C4.43072 8 3.983 8.44772 3.983 9V11M3.983 21H1V14.017C1 11.8079 2.79086 10.017 5 10.017H5M3.983 21L3.983 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+          </svg>
+          <p class="text-gray-600 mb-8 leading-relaxed italic relative z-10">"Excellent service ! J'ai reçu mon miroir pour Clio 4 le lendemain de ma commande. Installation faite en 2 minutes."</p>
+          <div class="flex items-center gap-4 relative z-10">
+            <div class="w-14 h-14 bg-gradient-to-br from-[#1F3A5F] to-[#2d5080] text-white rounded-2xl flex items-center justify-center font-bold text-xl shadow-lg shadow-[#1F3A5F]/20">M</div>
+            <div>
+              <h4 class="font-bold text-[#1F3A5F]">Mohamed A.</h4>
+              <div class="flex items-center gap-1.5">
+                <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+                <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Client vérifié • Tunis</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 2 -->
+        <div sa="fade-up" [saDelay]="100" class="group bg-white p-8 rounded-3xl border border-gray-100 shadow-sm hover:shadow-xl hover:-translate-y-2 transition-all duration-300 relative overflow-hidden">
+          <div class="absolute top-0 right-0 w-24 h-24 bg-[#4cb0ff]/5 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-150"></div>
+          <svg class="w-10 h-10 text-[#4cb0ff]/20 mb-6" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M14.017 21L14.017 18C14.017 16.8954 14.9124 16 16.017 16H19.017C19.5693 16 20.017 15.5523 20.017 15V9C20.017 8.44772 19.5693 8 19.017 8H15.017C14.4647 8 14.017 8.44772 14.017 9V11M14.017 21H7.01701V14.017C7.01701 11.8079 8.80787 10.017 11.017 10.017H11.017M14.017 21L14.017 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+            <path d="M3.983 21V18C3.983 16.8954 4.87843 16 5.983 16H8.983C9.53528 16 9.983 15.5523 9.983 15V9C9.983 8.44772 9.53528 8 8.983 8H4.983C4.43072 8 3.983 8.44772 3.983 9V11M3.983 21H1V14.017C1 11.8079 2.79086 10.017 5 10.017H5M3.983 21L3.983 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+          </svg>
+          <p class="text-gray-600 mb-8 leading-relaxed italic relative z-10">"Produit de très bonne qualité, identique à l'original. Le système de fixation est parfait. Je recommande vivement."</p>
+          <div class="flex items-center gap-4 relative z-10">
+            <div class="w-14 h-14 bg-gradient-to-br from-[#1F3A5F] to-[#2d5080] text-white rounded-2xl flex items-center justify-center font-bold text-xl shadow-lg shadow-[#1F3A5F]/20">S</div>
+            <div>
+              <h4 class="font-bold text-[#1F3A5F]">Sami K.</h4>
+              <div class="flex items-center gap-1.5">
+                <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+                <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Client vérifié • Sousse</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 3 -->
+        <div sa="fade-up" [saDelay]="200" class="group bg-white p-8 rounded-3xl border border-gray-100 shadow-sm hover:shadow-xl hover:-translate-y-2 transition-all duration-300 relative overflow-hidden">
+          <div class="absolute top-0 right-0 w-24 h-24 bg-[#4cb0ff]/5 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-150"></div>
+          <svg class="w-10 h-10 text-[#4cb0ff]/20 mb-6" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M14.017 21L14.017 18C14.017 16.8954 14.9124 16 16.017 16H19.017C19.5693 16 20.017 15.5523 20.017 15V9C20.017 8.44772 19.5693 8 19.017 8H15.017C14.4647 8 14.017 8.44772 14.017 9V11M14.017 21H7.01701V14.017C7.01701 11.8079 8.80787 10.017 11.017 10.017H11.017M14.017 21L14.017 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+            <path d="M3.983 21V18C3.983 16.8954 4.87843 16 5.983 16H8.983C9.53528 16 9.983 15.5523 9.983 15V9C9.983 8.44772 9.53528 8 8.983 8H4.983C4.43072 8 3.983 8.44772 3.983 9V11M3.983 21H1V14.017C1 11.8079 2.79086 10.017 5 10.017H5M3.983 21L3.983 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+          </svg>
+          <p class="text-gray-600 mb-8 leading-relaxed italic relative z-10">"Enfin un site sérieux en Tunisie pour les rétroviseurs. Large choix et prix très compétitifs. Bravo !"</p>
+          <div class="flex items-center gap-4 relative z-10">
+            <div class="w-14 h-14 bg-gradient-to-br from-[#1F3A5F] to-[#2d5080] text-white rounded-2xl flex items-center justify-center font-bold text-xl shadow-lg shadow-[#1F3A5F]/20">A</div>
+            <div>
+              <h4 class="font-bold text-[#1F3A5F]">Amel B.</h4>
+              <div class="flex items-center gap-1.5">
+                <span class="w-2 h-2 bg-green-500 rounded-full"></span>
+                <p class="text-xs font-semibold text-gray-400 uppercase tracking-wider">Client vérifié • Sfax</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>

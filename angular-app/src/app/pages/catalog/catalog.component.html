@@ -2,7 +2,7 @@
   <div class="bg-[#1F3A5F] text-white py-12">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
       <h1 class="text-3xl md:text-4xl font-bold mb-2">Catalogue</h1>
-      <p class="text-gray-200">Choisissez par marque, type et disponibilité</p>
+      <p class="text-gray-200">Choisissez par marque et disponibilité</p>
     </div>
   </div>
 
@@ -21,43 +21,106 @@
 
           <div>
             <label class="block text-sm text-gray-600 mb-2">Modèle</label>
-            <select class="w-full border rounded-md p-2" [value]="selectedModel()" (change)="selectedModel.set(($any($event.target)).value)">
+            <select class="w-full border rounded-md p-2" [disabled]="selectedBrand() === 'all'" [value]="selectedModel()" (change)="onModelChange(($any($event.target)).value)">
               <option value="all">Tous</option>
-              <option *ngFor="let p of productsSig()" [value]="p.model">{{ p.model }}</option>
+              <option *ngFor="let m of modelsSig()" [value]="m">{{ m }}</option>
             </select>
+            <p *ngIf="selectedBrand() === 'all'" class="text-[10px] text-gray-400 mt-1">Sélectionnez d'abord une marque</p>
           </div>
 
           <div>
             <label class="block text-sm text-gray-600 mb-2">Année</label>
-            <select class="w-full border rounded-md p-2" [value]="selectedYear()" (change)="selectedYear.set(($any($event.target)).value)">
+            <select class="w-full border rounded-md p-2" [value]="selectedYear()" (change)="onYearChange(($any($event.target)).value)">
               <option value="all">Toutes</option>
-              <option *ngFor="let p of productsSig()" [value]="p.year">{{ p.year }}</option>
-            </select>
-          </div>
-
-          <div>
-            <label class="block text-sm text-gray-600 mb-2">Type</label>
-            <select class="w-full border rounded-md p-2" [value]="selectedType()" (change)="selectedType.set(($any($event.target)).value)">
-              <option value="all">Tous</option>
-              <option *ngFor="let t of types()" [value]="t">{{ t }}</option>
+              <option *ngFor="let y of ['2024', '2023', '2022', '2021', '2020', '2019', '2018']" [value]="y">{{ y }}</option>
             </select>
           </div>
 
           <div>
             <label class="block text-sm text-gray-600 mb-2">Disponibilité</label>
-            <select class="w-full border rounded-md p-2" [value]="selectedAvailability()" (change)="selectedAvailability.set(($any($event.target)).value)">
+            <select class="w-full border rounded-md p-2" [value]="selectedAvailability()" (change)="onAvailabilityChange(($any($event.target)).value)">
               <option value="all">Toutes</option>
               <option value="En stock">En stock</option>
               <option value="Sur commande">Sur commande</option>
-              <option value="Rupture">Rupture</option>
+              <option value="Épuisé">Épuisé</option>
             </select>
           </div>
         </div>
       </aside>
 
       <section class="lg:col-span-3">
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="flex items-center justify-between mb-6">
+          <div class="text-sm text-gray-500 font-medium">
+            <span class="text-[#1F3A5F] font-bold">{{ totalProducts() }}</span> produits trouvés
+          </div>
+          <!-- Bouton filtre mobile -->
+          <button class="lg:hidden bg-[#1F3A5F] text-white px-4 py-2 rounded-full flex items-center gap-2 text-sm shadow-lg active:scale-95 transition-transform" (click)="showMobileFilters.set(true)">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+            </svg>
+            Filtrer
+          </button>
+        </div>
+
+        <div *ngIf="productsSig().length === 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div *ngFor="let i of [1,2,3,4,5,6]" class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden animate-pulse">
+            <div class="h-48 bg-gray-200"></div>
+            <div class="p-6 space-y-4">
+              <div class="h-4 bg-gray-200 rounded w-3/4"></div>
+              <div class="h-3 bg-gray-100 rounded w-1/2"></div>
+              <div class="flex justify-between items-center pt-4">
+                <div class="h-6 bg-gray-200 rounded w-1/4"></div>
+                <div class="h-10 bg-gray-200 rounded w-1/3"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="productsSig().length > 0" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           <app-product-card *ngFor="let p of filtered()" [product]="p" />
+        </div>
+
+        <!-- Overlay Filtres Mobile -->
+        <div *ngIf="showMobileFilters()" class="fixed inset-0 z-[100] lg:hidden">
+          <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" (click)="showMobileFilters.set(false)"></div>
+          <div class="absolute right-0 top-0 bottom-0 w-80 bg-white shadow-2xl p-6 overflow-y-auto animate-slide-in-right">
+            <div class="flex items-center justify-between mb-8">
+              <h2 class="text-xl font-bold text-[#1F3A5F]">Filtres</h2>
+              <button (click)="showMobileFilters.set(false)" class="p-2 hover:bg-gray-100 rounded-full transition-colors">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            
+            <div class="space-y-6">
+              <div>
+                <label class="block text-sm font-bold text-gray-700 mb-3 uppercase tracking-wider">Marque</label>
+                <select class="w-full border-2 border-gray-100 rounded-xl p-3 focus:border-[#4cb0ff] outline-none transition-colors" [value]="selectedBrand()" (change)="onBrandChange(($any($event.target)).value)">
+                  <option value="all">Toutes les marques</option>
+                  <option *ngFor="let b of brandsSig()" [value]="b">{{ b }}</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-sm font-bold text-gray-700 mb-3 uppercase tracking-wider">Disponibilité</label>
+                <div class="grid grid-cols-1 gap-2">
+                  <button *ngFor="let opt of ['all', 'En stock', 'Sur commande', 'Épuisé']"
+                    (click)="selectedAvailability.set(opt)"
+                    [class]="selectedAvailability() === opt ? 'bg-[#1F3A5F] text-white' : 'bg-gray-50 text-gray-600 hover:bg-gray-100'"
+                    class="px-4 py-3 rounded-xl text-left text-sm font-medium transition-all">
+                    {{ opt === 'all' ? 'Toutes les disponibilités' : opt }}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-12">
+              <button (click)="showMobileFilters.set(false)" class="w-full bg-[#4cb0ff] text-white py-4 rounded-xl font-bold shadow-lg shadow-[#4cb0ff]/20">
+                Afficher les résultats
+              </button>
+            </div>
+          </div>
         </div>
         <div class="flex items-center justify-center gap-4 mt-6">
           <button class="px-3 py-2 border rounded" (click)="prev()" [disabled]="page()===0">Précédent</button>

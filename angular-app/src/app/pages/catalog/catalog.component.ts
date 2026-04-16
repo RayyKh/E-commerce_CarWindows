@@ -23,66 +23,92 @@ export class CatalogComponent {
   protected readonly page = signal<number>(0);
   protected readonly size = signal<number>(12);
   protected readonly totalPages = signal<number>(0);
+  protected readonly totalProducts = signal<number>(0);
   protected readonly brandsSig = signal<string[]>([]);
+  protected readonly modelsSig = signal<string[]>([]);
+  protected readonly showMobileFilters = signal(false);
 
-  readonly types = computed(() => Array.from(new Set(this.productsSig().map((p) => p.type))).sort());
-
-  protected readonly filtered = computed(() =>
-    this.productsSig().filter((product) => {
-      const sb = this.selectedBrand();
-      const sm = this.selectedModel();
-      const sy = this.selectedYear();
-      const st = this.selectedType();
-      const sa = this.selectedAvailability();
-      const q = this.query().toLowerCase().trim();
-      if (q) {
-        const text = `${product.name} ${product.brand} ${product.model} ${product.type} ${product.year} ${product.category}`.toLowerCase();
-        if (!text.includes(q)) return false;
-      }
-      if (sb !== 'all' && product.brand !== sb) return false;
-      if (sm !== 'all' && product.model !== sm) return false;
-      if (sy !== 'all' && product.year !== sy) return false;
-      if (st !== 'all' && product.type !== st) return false;
-      if (sa !== 'all' && product.availability !== sa) return false;
-      return true;
-    })
-  );
+  protected readonly filtered = computed(() => this.productsSig());
   constructor(private route: ActivatedRoute, private router: Router, private api: ProductApiService) {
     const qp = this.route.snapshot.queryParamMap;
-    const q = qp.get('q') ?? '';
-    const brand = qp.get('brand') ?? 'all';
-    const model = qp.get('model') ?? 'all';
-    const year = qp.get('year') ?? 'all';
-    const type = qp.get('type') ?? 'all';
-    this.query.set(q);
-    this.selectedBrand.set(brand);
-    this.selectedModel.set(model);
-    this.selectedYear.set(year);
-    this.selectedType.set(type);
+    this.query.set(qp.get('q') ?? '');
+    this.selectedBrand.set(qp.get('brand') ?? 'all');
+    this.selectedModel.set(qp.get('model') ?? 'all');
+    this.selectedYear.set(qp.get('year') ?? 'all');
+    this.selectedType.set(qp.get('type') ?? 'all');
+    this.selectedAvailability.set(qp.get('availability') ?? 'all');
+    
     this.loadPage(0);
     this.api.brands().subscribe((list) => this.brandsSig.set(list));
+    this.updateModels();
   }
-  loadPage(pg: number) {
+
+  updateModels() {
     const brand = this.selectedBrand();
-    const model = this.selectedModel();
-    const size = this.size();
     if (brand === 'all') {
-      this.api.list(pg, size, 'createdAt,desc').subscribe((page) => {
-        this.page.set(page.number);
-        this.totalPages.set(page.totalPages);
-        this.productsSig.set(page.content.map((p) => this.api.toFrontend(p as any)));
-      });
+      this.modelsSig.set([]);
     } else {
-      this.api.filterPaged(brand, model === 'all' ? null : model, pg, size, 'createdAt,desc').subscribe((page) => {
-        this.page.set(page.number);
-        this.totalPages.set(page.totalPages);
-        this.productsSig.set(page.content.map((p) => this.api.toFrontend(p as any)));
+      this.api.filterPaged(brand, null, 0, 1000).subscribe(page => {
+        const models = Array.from(new Set(page.content.map(p => p.modeleVoiture))).sort();
+        this.modelsSig.set(models);
       });
     }
   }
+
+  loadPage(pg: number) {
+    const brand = this.selectedBrand();
+    const model = this.selectedModel();
+    const year = this.selectedYear();
+    const availability = this.selectedAvailability();
+    const query = this.query();
+    const size = this.size();
+
+    this.api.searchPaged(brand, model, year, availability, query, pg, size).subscribe((page) => {
+      this.page.set(page.number);
+      this.totalPages.set(page.totalPages);
+      this.totalProducts.set(page.totalElements);
+      this.productsSig.set(page.content.map((p) => this.api.toFrontend(p as any)));
+      // Scroll to top of list
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  }
+
+  onFilterChange() {
+    this.loadPage(0);
+    // Update URL query params without reloading
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: {
+        brand: this.selectedBrand(),
+        model: this.selectedModel(),
+        year: this.selectedYear(),
+        availability: this.selectedAvailability(),
+        q: this.query()
+      },
+      queryParamsHandling: 'merge'
+    });
+  }
+
   onBrandChange(val: string) {
     this.selectedBrand.set(val);
-    this.loadPage(0);
+    this.selectedModel.set('all'); // Reset model when brand changes
+    this.updateModels();
+    this.onFilterChange();
+  }
+
+  onModelChange(val: string) {
+    this.selectedModel.set(val);
+    this.onFilterChange();
+  }
+
+  onYearChange(val: string) {
+    this.selectedYear.set(val);
+    this.onFilterChange();
+  }
+
+  onAvailabilityChange(val: string) {
+    this.selectedAvailability.set(val);
+    this.onFilterChange();
   }
   next() {
     const p = this.page();

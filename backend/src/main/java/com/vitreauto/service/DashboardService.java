@@ -1,16 +1,15 @@
 package com.vitreauto.service;
 
-import com.vitreauto.entity.Order;
-import com.vitreauto.entity.OrderStatus;
-import com.vitreauto.entity.Role;
-import com.vitreauto.repository.OrderRepository;
-import com.vitreauto.repository.UserRepository;
-import org.springframework.stereotype.Service;
-
 import java.math.BigDecimal;
 import java.time.Month;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import org.springframework.stereotype.Service;
+
+import com.vitreauto.entity.Order;
+import com.vitreauto.repository.OrderRepository;
+import com.vitreauto.repository.UserRepository;
 
 @Service
 public class DashboardService {
@@ -39,5 +38,14 @@ public class DashboardService {
         o -> o.getDateCommande().getYear() + "-" + Month.of(o.getDateCommande().getMonthValue()).name(),
         Collectors.reducing(BigDecimal.ZERO, Order::getTotal, BigDecimal::add)
     ));
+  }
+
+  public Map<String, Long> brandDistribution() {
+    return orderRepository.findAll().stream()
+        .flatMap(o -> o.getOrderItems().stream())
+        .collect(Collectors.groupingBy(
+            item -> item.getProduct().getMarqueVoiture(),
+            Collectors.counting()
+        ));
   }
 }

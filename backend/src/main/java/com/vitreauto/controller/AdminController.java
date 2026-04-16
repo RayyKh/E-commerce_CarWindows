@@ -46,6 +46,11 @@ public class AdminController {
     return ResponseEntity.ok(dashboardService.monthlyRevenue());
   }
 
+  @GetMapping("/dashboard/brand-distribution")
+  public ResponseEntity<Map<String, Long>> brandDistribution() {
+    return ResponseEntity.ok(dashboardService.brandDistribution());
+  }
+
   @GetMapping("/orders")
   public ResponseEntity<List<Order>> orders() {
     return ResponseEntity.ok(orderService.adminList());

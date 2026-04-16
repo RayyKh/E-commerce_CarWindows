@@ -21,9 +21,18 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
   List<String> findDistinctMarques();
 
   @Query("select p from Product p where " +
-         "(:marque is null or lower(p.marqueVoiture) = lower(:marque)) and " +
-         "(:query is null or lower(p.nom) like lower(concat('%', :query, '%')) or " +
+         "(:marque is null or lower(trim(p.marqueVoiture)) = lower(trim(:marque))) and " +
+         "(:modele is null or lower(trim(p.modeleVoiture)) = lower(trim(:modele))) and " +
+         "(:annee is null or trim(p.annee) = trim(:annee)) and " +
+         "(:availability is null or lower(trim(p.status)) = lower(trim(:availability))) and " +
+         "(:query is null or (lower(p.nom) like lower(concat('%', :query, '%')) or " +
+         "lower(p.marqueVoiture) like lower(concat('%', :query, '%')) or " +
          "lower(p.modeleVoiture) like lower(concat('%', :query, '%')) or " +
-         "lower(p.annee) like lower(concat('%', :query, '%')))")
-  Page<Product> findBySearch(@Param("marque") String marque, @Param("query") String query, Pageable pageable);
+         "lower(p.annee) like lower(concat('%', :query, '%'))))")
+  Page<Product> findBySearch(@Param("marque") String marque, 
+                             @Param("modele") String modele,
+                             @Param("annee") String annee,
+                             @Param("availability") String availability, 
+                             @Param("query") String query, 
+                             Pageable pageable);
 }

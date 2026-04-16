@@ -3,9 +3,12 @@ import { HttpClient } from '@angular/common/http';
 import { Component, computed, OnDestroy, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { Chart, registerables } from 'chart.js';
 import { environment } from '../../../environments/environment';
 import { AuthApiService } from '../../services/auth-api.service';
 import { ProductApiService } from '../../services/product-api.service';
+
+Chart.register(...registerables);
 
 interface OrderItem {
   id: number;
@@ -47,12 +50,21 @@ interface ProductForm {
 })
 export class AdminDashboardComponent implements OnInit, OnDestroy {
   activeTab = signal<'orders' | 'products' | 'revenue' | 'history'>('orders');
+  
+  setActiveTab(tab: 'orders' | 'products' | 'revenue' | 'history') {
+    this.activeTab.set(tab);
+    if (tab === 'revenue') {
+      setTimeout(() => this.loadRevenue(), 100);
+    }
+  }
+
   orders = signal<Order[]>([]);
   products = signal<any[]>([]);
   
   // Filtering & Pagination
   searchTerm = signal<string>('');
   selectedBrandFilter = signal<string>('all');
+  selectedAvailabilityFilter = signal<string>('all');
   currentPage = signal<number>(0);
   pageSize = 10;
   totalPages = signal<number>(0);
@@ -64,6 +76,9 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
   totalClients = signal<number>(0);
   monthlyRevenue = signal<{ label: string; amount: number }[]>([]);
   monthlyTotal = signal<number>(0);
+  brandStats = signal<{ label: string; count: number; percent: number }[]>([]);
+  
+  revenueChart: any;
   
   brands = [
     "ALFA ROMEO", "AUDI", "BMW", "CHEVROLET", "CHRYSLER", "CITROEN", "DACIA", "DAEWOO", "DAIHATSU",
@@ -140,15 +155,26 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
 
   loadOrders() {
     this.http.get<Order[]>(`${this.base}/admin/orders`).subscribe((res) => {
-      this.orders.set(res.reverse());
+      const currentOrders = this.orders();
+      const newOrders = res.reverse();
+      
+      if (currentOrders.length > 0 && newOrders.length > currentOrders.length) {
+        // Notification sonore simple si possible ou visuelle
+        const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2354/2354-preview.mp3');
+        audio.play().catch(() => {});
+        alert('🔔 Nouvelle commande reçue !');
+      }
+      
+      this.orders.set(newOrders);
     });
   }
 
   loadProducts() {
     const query = this.searchTerm().trim();
     const brand = this.selectedBrandFilter();
+    const availability = this.selectedAvailabilityFilter();
     
-    this.productApi.adminSearch(query, brand, this.currentPage(), this.pageSize).subscribe(res => {
+    this.productApi.adminSearch(query, brand, this.currentPage(), this.pageSize, availability).subscribe(res => {
       this.products.set(res.content);
       this.totalPages.set(res.totalPages);
       this.totalProducts.set(res.totalElements);
@@ -184,12 +210,79 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
       const entries = Object.entries(map).map(([label, amount]) => ({ label, amount }));
       entries.sort((a, b) => a.label.localeCompare(b.label));
       this.monthlyRevenue.set(entries);
-      const now = new Date();
-      const year = now.getFullYear();
-      const monthName = now.toLocaleString('en-US', { month: 'long' }).toUpperCase();
-      const key = `${year}-${monthName}`;
-      const found = entries.find(e => e.label === key);
-      this.monthlyTotal.set(found ? found.amount : 0);
+      
+      const maxAmount = Math.max(...entries.map(e => e.amount), 1);
+      this.monthlyTotal.set(maxAmount);
+      this.updateRevenueChart(entries);
+    });
+
+    this.http.get<Record<string, number>>(`${this.base}/admin/dashboard/brand-distribution`).subscribe(map => {
+      const entries = Object.entries(map).map(([label, count]) => ({ label, count }));
+      const total = entries.reduce((acc, curr) => acc + curr.count, 0);
+      const stats = entries.map(e => ({
+        label: e.label,
+        count: e.count,
+        percent: total > 0 ? Math.round((e.count / total) * 100) : 0
+      }));
+      stats.sort((a, b) => b.count - a.count);
+      this.brandStats.set(stats);
+    });
+  }
+
+  updateRevenueChart(data: { label: string; amount: number }[]) {
+    const ctx = document.getElementById('revenueChart') as HTMLCanvasElement;
+    if (!ctx) return;
+
+    if (this.revenueChart) {
+      this.revenueChart.destroy();
+    }
+
+    this.revenueChart = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: data.map(d => d.label),
+        datasets: [{
+          label: 'Revenu Mensuel (DT)',
+          data: data.map(d => d.amount),
+          backgroundColor: '#4cb0ff',
+          hoverBackgroundColor: '#1F3A5F',
+          borderRadius: 8,
+          barThickness: 40,
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: '#1F3A5F',
+            titleFont: { size: 12, weight: 'bold' },
+            bodyFont: { size: 14 },
+            padding: 12,
+            displayColors: false,
+            callbacks: {
+              label: (context) => ` ${context.parsed.y} DT`
+            }
+          }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            border: { display: false },
+            grid: { color: 'rgba(0,0,0,0.05)' },
+            ticks: { 
+              font: { size: 11, family: 'Inter' },
+              callback: (value) => value + ' DT'
+            }
+          },
+          x: {
+            border: { display: false },
+            grid: { display: false },
+            ticks: { font: { size: 11, family: 'Inter', weight: 'bold' } }
+          }
+        }
+      }
     });
   }
 
