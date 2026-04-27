@@ -18,7 +18,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.vitreauto.repository.UserRepository;
@@ -29,26 +28,27 @@ public class SecurityConfig {
   private final UserRepository userRepository;
   private final JwtService jwtService;
 
-  @Bean
-  public JwtAuthenticationFilter jwtAuthenticationFilter() {
-    return new JwtAuthenticationFilter(jwtService, userDetailsService());
-  }
-
-
   public SecurityConfig(UserRepository userRepository, JwtService jwtService) {
     this.userRepository = userRepository;
     this.jwtService = jwtService;
   }
 
   @Bean
+  public JwtAuthenticationFilter jwtAuthenticationFilter() {
+    return new JwtAuthenticationFilter(jwtService, userDetailsService());
+  }
+
+  @Bean
   public UserDetailsService userDetailsService() {
-    return username -> userRepository.findByEmail(username).orElseThrow(() -> new RuntimeException("User not found"));
+    return username -> userRepository.findByEmail(username)
+        .orElseThrow(() -> new org.springframework.security.core.userdetails.UsernameNotFoundException("User not found: " + username));
   }
 
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-    http.csrf(csrf -> csrf.disable())
-        .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+    http
+        .cors(org.springframework.security.config.Customizer.withDefaults())
+        .csrf(csrf -> csrf.disable())
         .headers(headers -> headers.frameOptions(frame -> frame.disable()))
         .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authorizeHttpRequests(auth -> auth
@@ -57,9 +57,8 @@ public class SecurityConfig {
             .requestMatchers("/api/images/**").permitAll()
             .requestMatchers(HttpMethod.POST, "/orders").permitAll()
             .requestMatchers("/orders/by-phone").permitAll()
-            .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
             .requestMatchers("/h2/**").permitAll()
-            .requestMatchers("/admin/**").permitAll()
+            .requestMatchers("/admin/**").hasRole("ADMIN")
             .requestMatchers("/admin/files/**").permitAll()
             .requestMatchers("/orders/**").hasAnyRole("CLIENT","ADMIN")
             .anyRequest().authenticated()
@@ -67,6 +66,19 @@ public class SecurityConfig {
         .authenticationProvider(authenticationProvider())
         .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
     return http.build();
+  }
+
+  @Bean
+  public org.springframework.web.cors.CorsConfigurationSource corsConfigurationSource() {
+    CorsConfiguration config = new CorsConfiguration();
+    config.setAllowCredentials(true);
+    config.setAllowedOriginPatterns(Arrays.asList("*"));
+    config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+    config.setAllowedHeaders(Arrays.asList("*"));
+    config.setMaxAge(3600L);
+    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+    source.registerCorsConfiguration("/**", config);
+    return source;
   }
 
   @Bean
@@ -86,18 +98,4 @@ public class SecurityConfig {
   public PasswordEncoder passwordEncoder() {
     return new BCryptPasswordEncoder();
   }
-
-  @Bean
-  public CorsConfigurationSource corsConfigurationSource() {
-    CorsConfiguration config = new CorsConfiguration();
-    config.setAllowCredentials(true);
-    config.setAllowedOrigins(Arrays.asList("http://localhost:4200","http://localhost:4201"));
-    config.setAllowedHeaders(Arrays.asList("*"));
-    config.setAllowedMethods(Arrays.asList("GET","POST","PUT","DELETE","OPTIONS"));
-    UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-    source.registerCorsConfiguration("/**", config);
-    return source;
-  }
-
-  
 }

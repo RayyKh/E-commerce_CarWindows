@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { Meta, Title } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { HERO_IMAGE } from '../../components/assets/assets.component';
 import { ProductCardComponent } from '../../components/product-card/product-card.component';
@@ -32,7 +33,10 @@ export class HomeComponent {
   protected readonly models = signal<string[]>([]);
   protected readonly years = signal<string[]>([]);
 
-  constructor(private router: Router, private api: ProductApiService) {
+  constructor(private router: Router, private api: ProductApiService, private title: Title, private meta: Meta) {
+     this.title.setTitle('SOS Rétro - Spécialiste Rétroviseurs Automobiles en Tunisie');
+     this.meta.updateTag({ name: 'description', content: 'SOS Rétro est votre expert en miroirs de rétroviseur en Tunisie. Trouvez la pièce exacte pour votre véhicule parmi plus de 2500 références.' });
+    
     this.api.brands().subscribe((list) => this.brandsSig.set(list));
     this.api.list(0, 8, 'createdAt,desc').subscribe((page) => {
       this.featured.set(page.content.map(p => this.api.toFrontend(p)));

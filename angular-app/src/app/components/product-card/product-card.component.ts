@@ -24,7 +24,7 @@ export class ProductCardComponent {
   }
   onImgError(ev: Event) {
     const el = ev.target as HTMLImageElement;
-    el.src = 'https://placehold.jp/600x400.png?text=VitreAuto';
+    el.src = 'https://placehold.jp/600x400.png?text=SOS%20Rétro';
   }
   availabilityClass(status: string) {
     switch (status) {

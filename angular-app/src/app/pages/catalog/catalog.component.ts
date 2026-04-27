@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, signal } from '@angular/core';
+import { Meta, Title } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ProductCardComponent } from '../../components/product-card/product-card.component';
 import { Product } from '../../data/products';
@@ -29,7 +30,10 @@ export class CatalogComponent {
   protected readonly showMobileFilters = signal(false);
 
   protected readonly filtered = computed(() => this.productsSig());
-  constructor(private route: ActivatedRoute, private router: Router, private api: ProductApiService) {
+  constructor(private route: ActivatedRoute, private router: Router, private api: ProductApiService, private title: Title, private meta: Meta) {
+     this.title.setTitle('Catalogue de Rétroviseurs - SOS Rétro Tunisie');
+     this.meta.updateTag({ name: 'description', content: 'Explorez le catalogue SOS Rétro : miroirs et glaces de rétroviseurs pour toutes les marques automobiles en Tunisie.' });
+    
     const qp = this.route.snapshot.queryParamMap;
     this.query.set(qp.get('q') ?? '');
     this.selectedBrand.set(qp.get('brand') ?? 'all');

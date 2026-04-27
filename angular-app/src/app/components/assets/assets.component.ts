@@ -1,8 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, signal } from '@angular/core';
 
-export const HERO_IMAGE =
-  'https://images.unsplash.com/photo-1565376791568-d30e46523795?auto=format&fit=crop&w=1600&q=80';
+export const HERO_IMAGE = '/hero4.png';
 
 @Component({
   selector: 'app-assets',

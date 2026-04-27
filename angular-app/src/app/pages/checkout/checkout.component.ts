@@ -59,7 +59,7 @@ export class CheckoutComponent {
           this.cart.clearCart();
         },
         error: (e) => {
-          this.error.set(e?.error?.message || 'Erreur lors de la création de la commande');
+          this.error.set(e?.error?.message || 'Verifier les données de la commande');
           this.submitting.set(false);
         },
       });

@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, computed, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { Meta, Title } from '@angular/platform-browser';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 import { ProductCardComponent } from '../../components/product-card/product-card.component';
@@ -35,13 +36,24 @@ export class ProductDetailComponent implements OnDestroy {
       )
       .slice(0, 4)
   );
-  constructor(private cart: CartService, private route: ActivatedRoute, private api: ProductApiService) {
+  constructor(private cart: CartService, private route: ActivatedRoute, private api: ProductApiService, private title: Title, private meta: Meta) {
     this.route.paramMap.pipe(takeUntil(this.destroy$)).subscribe(params => {
       const newId = params.get('id') ?? '';
       this.id.set(newId);
       if (newId) {
         this.api.get(newId).subscribe((p) => {
-          this.productSig.set(this.api.toFrontend(p as any));
+          const prod = this.api.toFrontend(p as any);
+          this.productSig.set(prod);
+          
+          // SEO Update
+           const pageTitle = `${prod.name} - ${prod.brand} ${prod.model} | SOS Rétro`;
+           this.title.setTitle(pageTitle);
+           this.meta.updateTag({ name: 'description', content: `Achetez votre ${prod.name} pour ${prod.brand} ${prod.model} (${prod.year}) sur SOS Rétro. Qualité certifiée, livraison rapide en Tunisie.` });
+          
+          // Open Graph
+          this.meta.updateTag({ property: 'og:title', content: pageTitle });
+          this.meta.updateTag({ property: 'og:image', content: prod.image });
+
           window.scrollTo(0, 0); // Scroll to top when product changes
         });
       }
@@ -78,6 +90,6 @@ export class ProductDetailComponent implements OnDestroy {
   }
   onImgError(ev: Event) {
     const el = ev.target as HTMLImageElement;
-    el.src = 'https://placehold.jp/600x400.png?text=VitreAuto';
+    el.src = 'https://placehold.jp/600x400.png?text=SOS%20Rétro';
   }
 }

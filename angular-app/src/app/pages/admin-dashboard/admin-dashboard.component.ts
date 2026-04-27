@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Chart, registerables } from 'chart.js';
 import { environment } from '../../../environments/environment';
+import { Product } from '../../data/products';
 import { AuthApiService } from '../../services/auth-api.service';
 import { ProductApiService } from '../../services/product-api.service';
 
@@ -175,7 +176,7 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
     const availability = this.selectedAvailabilityFilter();
     
     this.productApi.adminSearch(query, brand, this.currentPage(), this.pageSize, availability).subscribe(res => {
-      this.products.set(res.content);
+      this.products.set(res.content.map((p: any) => this.productApi.toFrontend(p)));
       this.totalPages.set(res.totalPages);
       this.totalProducts.set(res.totalElements);
     });
@@ -293,18 +294,18 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
   }
 
   // Product CRUD
-  editProduct(p: any) {
+  editProduct(p: Product) {
     this.editingProduct.set(p);
     this.productForm = { 
-      nom: p.nom || '',
+      nom: p.name || '',
       description: p.description || '',
-      prix: p.prix || 0,
-      marqueVoiture: p.marqueVoiture || '',
-      modeleVoiture: p.modeleVoiture || '',
-      annee: p.annee || '',
-      imageUrl: p.imageUrl || '',
+      prix: p.price || 0,
+      marqueVoiture: p.brand || '',
+      modeleVoiture: p.model || '',
+      annee: p.year || '',
+      imageUrl: p.image || '',
       stock: p.stock || 0,
-      status: p.status || 'En stock'
+      status: p.availability || 'En stock'
     };
   }
 
@@ -390,9 +391,10 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
             // Transform filenames to accessible API URLs
             const filename = val.split('/').pop() || val.split('\\').pop();
             if (filename && filename.trim() !== '') {
-              p[key] = `http://localhost:8081/api/images/${filename.trim()}`;
+              // On utilise un chemin relatif qui sera complété par le service avec l'IP dynamique
+              p[key] = `/api/images/${filename.trim()}`;
             } else {
-              p[key] = 'https://placehold.jp/600x400.png?text=VitreAuto';
+              p[key] = 'https://placehold.jp/600x400.png?text=SOS%20Rétro';
             }
           } else {
             p[key] = val;
@@ -443,9 +445,10 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
             // If image path starts with /images/, transform it to our API endpoint
             const filename = val.split('/').pop() || val.split('\\').pop();
             if (filename && filename.trim() !== '') {
-              p[key] = `http://localhost:8081/api/images/${filename.trim()}`;
+              // On utilise un chemin relatif qui sera complété par le service avec l'IP dynamique
+              p[key] = `/api/images/${filename.trim()}`;
             } else {
-              p[key] = 'https://placehold.jp/600x400.png?text=VitreAuto';
+              p[key] = 'https://placehold.jp/600x400.png?text=SOS%20Rétro';
             }
           } else {
             p[key] = val;

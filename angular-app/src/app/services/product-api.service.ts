@@ -30,18 +30,29 @@ export class ProductApiService {
   constructor(private http: HttpClient) {}
 
   toFrontend(p: ApiProduct): Product {
+    let img = p.imageUrl || 'assets/placeholder-auto.jpg';
+    
+    // Si l'URL contient localhost:8081 (ancienne importation erronée), on la corrige dynamiquement
+    if (img.includes('localhost:8081') && window.location.hostname !== 'localhost') {
+      img = img.replace('localhost:8081', `${window.location.hostname}:8081`);
+    } else if (img.startsWith('/')) {
+      // Utiliser l'adresse de base de l'API qui est déjà configurée avec la bonne IP et le bon port
+      img = `${this.base}${img}`;
+    }
+    
     return {
       id: String(p.id),
-      name: p.nom,
-      description: p.description,
-      price: p.prix,
-      brand: p.marqueVoiture,
-      model: p.modeleVoiture,
-      year: p.annee,
-      image: p.imageUrl,
+      name: p.nom || 'Produit sans nom',
+      description: p.description || '',
+      price: p.prix || 0,
+      brand: p.marqueVoiture || 'Inconnue',
+      model: p.modeleVoiture || '',
+      year: p.annee || '',
+      image: img,
       type: 'Pare-brise',
       availability: (p.status || (p.stock > 0 ? 'En stock' : 'Rupture')) as any,
       category: 'Standard',
+      stock: p.stock
     };
   }
 

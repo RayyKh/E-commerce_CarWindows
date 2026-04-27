@@ -22,31 +22,35 @@
       </div>
     </div>
 
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
         <div class="lg:col-span-2 space-y-4">
-          <div *ngFor="let item of items()" class="bg-white rounded-lg shadow-md p-4">
-            <div class="flex gap-4">
-              <div class="w-24 h-24 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
+          <div *ngFor="let item of items()" class="bg-white rounded-xl sm:rounded-lg shadow-sm sm:shadow-md p-3 sm:p-4 animate-fade-in-up">
+            <div class="flex gap-3 sm:gap-4">
+              <div class="w-20 h-20 sm:w-24 sm:h-24 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
                 <img [src]="item.image" [alt]="item.name" class="w-full h-full object-cover" />
               </div>
               <div class="flex-1 min-w-0">
-                <a [routerLink]="['/produit', item.id]" class="text-lg font-semibold text-[#1F3A5F] hover:underline block mb-1">{{ item.name }}</a>
-                <div class="text-sm text-gray-600 mb-1">{{ item.brand }} {{ item.model }} • {{ item.year }}</div>
-                <div class="text-xs text-gray-500 mb-3" *ngIf="item.side || item.fixation">
-                  <span *ngIf="item.side" class="mr-3">Côté: {{ item.side }}</span>
+                <div class="flex justify-between items-start mb-1">
+                  <a [routerLink]="['/produit', item.id]" class="text-sm sm:text-lg font-bold text-[#1F3A5F] hover:underline truncate">{{ item.name }}</a>
+                  <button (click)="remove(item)" class="text-gray-400 hover:text-red-500 transition-colors p-1">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                  </button>
+                </div>
+                <div class="text-[10px] sm:text-sm text-gray-500 mb-1">{{ item.brand }} {{ item.model }} • {{ item.year }}</div>
+                <div class="text-[10px] sm:text-xs text-gray-400 mb-3" *ngIf="item.side || item.fixation">
+                  <span *ngIf="item.side" class="mr-2">Côté: {{ item.side }}</span>
                   <span *ngIf="item.fixation">Type: {{ item.fixation }}</span>
                 </div>
-                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                  <div class="flex items-center space-x-3">
-                    <button (click)="update(item, item.quantity - 1)" class="w-8 h-8 rounded-full bg-gray-200 hover:bg-gray-300 flex items-center justify-center transition-colors">-</button>
-                    <span class="text-lg font-semibold w-8 text-center">{{ item.quantity }}</span>
-                    <button (click)="update(item, item.quantity + 1)" class="w-8 h-8 rounded-full bg-gray-200 hover:bg-gray-300 flex items-center justify-center transition-colors">+</button>
+                <div class="flex items-center justify-between mt-auto">
+                  <div class="flex items-center bg-gray-50 rounded-lg p-1 border border-gray-100">
+                    <button (click)="update(item, item.quantity - 1)" class="w-7 h-7 sm:w-8 sm:h-8 rounded-md bg-white shadow-sm flex items-center justify-center hover:bg-gray-50 transition-colors active:scale-90">-</button>
+                    <span class="text-sm sm:text-lg font-bold w-8 sm:w-10 text-center">{{ item.quantity }}</span>
+                    <button (click)="update(item, item.quantity + 1)" class="w-7 h-7 sm:w-8 sm:h-8 rounded-md bg-white shadow-sm flex items-center justify-center hover:bg-gray-50 transition-colors active:scale-90">+</button>
                   </div>
-                  <div class="flex items-center justify-between sm:justify-start sm:space-x-6">
-                    <span class="text-xl font-bold text-[#1F3A5F]">{{ item.price * item.quantity }} DT</span>
-                    <button (click)="remove(item)" class="text-red-500 hover:text-red-700 transition-colors">Supprimer</button>
-                  </div>
+                  <span class="text-base sm:text-xl font-black text-[#1F3A5F]">{{ item.price * item.quantity }} DT</span>
                 </div>
               </div>
             </div>
@@ -54,22 +58,22 @@
         </div>
 
         <div class="lg:col-span-1">
-          <div class="bg-white rounded-lg shadow-md p-6 sticky top-20">
-            <h2 class="text-2xl font-bold text-[#1F3A5F] mb-6">Récapitulatif</h2>
+          <div class="bg-white rounded-xl sm:rounded-lg shadow-sm sm:shadow-md p-5 sm:p-6 sticky top-20">
+            <h2 class="text-xl sm:text-2xl font-bold text-[#1F3A5F] mb-4 sm:mb-6">Récapitulatif</h2>
             <div class="space-y-3 mb-6">
-              <div *ngFor="let item of items()" class="flex justify-between text-sm">
-                <span class="text-gray-600">{{ item.name }} ×{{ item.quantity }}</span>
-                <span class="font-semibold">{{ item.price * item.quantity }} DT</span>
+              <div *ngFor="let item of items()" class="flex justify-between text-xs sm:text-sm">
+                <span class="text-gray-500">{{ item.name }} <span class="text-gray-400">×{{ item.quantity }}</span></span>
+                <span class="font-bold text-[#1F3A5F]">{{ item.price * item.quantity }} DT</span>
               </div>
             </div>
-            <div class="border-t pt-4 mb-6 flex justify-between items-center">
-              <span class="text-lg font-semibold text-[#1F3A5F]">Total</span>
-              <span class="text-2xl font-bold text-[#1F3A5F]">{{ total() }} DT</span>
+            <div class="border-t border-dashed pt-4 mb-6 flex justify-between items-center">
+              <span class="text-base sm:text-lg font-bold text-gray-600">Total</span>
+              <span class="text-xl sm:text-2xl font-black text-[#1F3A5F]">{{ total() }} DT</span>
             </div>
-            <button (click)="checkout()" class="w-full bg-[#1F3A5F] text-white px-6 py-4 rounded-lg text-lg font-semibold hover:bg-[#2d5080] transition-colors">
+            <button (click)="checkout()" class="w-full bg-[#1F3A5F] text-white px-6 py-3 sm:py-4 rounded-xl text-base sm:text-lg font-bold hover:bg-[#2d5080] transition-all active:scale-[0.98] shadow-lg shadow-[#1F3A5F]/20">
               Commander
             </button>
-            <a routerLink="/catalogue" class="block text-center text-[#1F3A5F] hover:underline mt-4">Continuer mes achats</a>
+            <a routerLink="/catalogue" class="block text-center text-sm font-semibold text-[#1F3A5F] hover:underline mt-5">Continuer mes achats</a>
           </div>
         </div>
       </div>

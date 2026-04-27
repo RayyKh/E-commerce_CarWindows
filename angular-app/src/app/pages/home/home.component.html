@@ -1,50 +1,66 @@
-<section class="relative text-white z-[60]">
-  <img [src]="heroImage" alt="Installation de vitrage automobile" class="absolute inset-0 w-full h-full object-cover">
-  <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 min-h-[460px] flex items-center justify-center">
-    <div class="max-w-3xl text-center">
-      <h1 sa="fade-up" class="text-3xl md:text-5xl font-extrabold leading-tight mb-4">
-        Vos miroirs de rétroviseur <span class="text-[#4cb0ff]">comme neufs</span> en quelques minutes.
+<section class="relative text-white z-[10]">
+  <!-- Conteneur d'image avec overflow-hidden séparé pour laisser passer la liste de recherche -->
+  <div class="absolute inset-0 overflow-hidden">
+    <img [src]="heroImage" alt="Vente et installation de rétroviseurs automobiles en Tunisie" class="absolute inset-0 w-full h-full object-cover animate-slow-zoom">
+    <div class="absolute inset-0 bg-gradient-to-b from-[#1F3A5F]/60 via-[#1F3A5F]/40 to-black/70"></div>
+  </div>
+  
+  <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 min-h-[420px] sm:min-h-[500px] flex items-center justify-center">
+    <div class="w-full max-w-3xl text-center animate-fade-in-up">
+      <!-- Badge optionnel pour mobile -->
+      <span class="inline-block bg-[#4cb0ff] text-white text-[10px] font-black uppercase tracking-[0.2em] px-3 py-1 rounded-full mb-4 sm:hidden">
+        N°1 en Tunisie
+      </span>
+
+      <h1 class="text-2xl sm:text-4xl md:text-6xl font-black leading-[1.1] mb-4 drop-shadow-lg">
+        Vos miroirs de rétroviseur <br class="hidden sm:block">
+        <span class="text-[#4cb0ff] drop-shadow-sm">comme neufs</span>
       </h1>
-      <p sa="fade-up" class="text-gray-200 text-lg md:text-xl mb-8">
-        Large choix de rétroviseurs automobiles de qualité, compatibles avec de nombreux modèles et disponibles en Tunisie au meilleur prix.
+      
+      <p class="text-gray-100 text-sm sm:text-lg md:text-xl mb-8 font-medium max-w-2xl mx-auto leading-relaxed opacity-90">
+        Large choix de rétroviseurs de qualité, compatibles avec tous modèles. Installation rapide partout en Tunisie.
       </p>
-      <form sa="fade-up" (submit)="onSearch($event)" class="bg-white/95 backdrop-blur-sm rounded-2xl shadow-xl p-4 sm:p-5 max-w-3xl mx-auto relative z-[70]">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-          <div class="md:col-span-2 relative">
+      
+      <!-- Formulaire de recherche épuré -->
+      <form (submit)="onSearch($event)" class="relative z-[70] max-w-2xl mx-auto">
+        <div class="flex flex-col sm:flex-row items-stretch gap-2 p-2 sm:p-3 bg-white/10 backdrop-blur-md rounded-2xl sm:rounded-full border border-white/20 shadow-2xl">
+          <div class="relative flex-1 group">
+            <svg class="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-white/50 group-focus-within:text-[#4cb0ff] transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
             <input 
               type="text" 
               [ngModel]="query()" 
               (ngModelChange)="onQueryChange($event)"
               name="query"
-              placeholder="Rechercher par voiture ou modèle " 
-              class="w-full px-4 py-3 rounded-lg border border-gray-200 text-gray-800 focus:ring-2 focus:ring-[#4cb0ff] focus:border-transparent outline-none transition-all"
+              placeholder="Ex: Golf 7, Clio 4..." 
+              class="w-full bg-white/10 sm:bg-transparent border-none focus:ring-0 text-white placeholder:text-white/50 pl-12 pr-4 py-3 sm:py-4 rounded-xl sm:rounded-full text-base"
               autocomplete="off"
               (focus)="query().length >= 2 && showSuggestions.set(true)"
             />
             
-            <!-- Auto-complétion dropdown -->
-            <div *ngIf="showSuggestions()" class="absolute z-[100] left-0 right-0 mt-2 bg-white rounded-xl shadow-2xl border border-gray-100 overflow-hidden">
+            <!-- Auto-complétion dropdown (ajustée pour le nouveau design) -->
+            <div *ngIf="showSuggestions()" class="absolute z-[1000] left-0 right-0 mt-4 bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden animate-fade-in-up mx-[-8px] sm:mx-0">
               <div *ngFor="let s of suggestions()" 
                 (click)="selectSuggestion(s)"
-                class="px-4 py-3 hover:bg-gray-50 cursor-pointer flex items-center gap-3 transition-colors border-b border-gray-50 last:border-0 opacity-100">
-                <img [src]="s.image" class="w-10 h-10 object-cover rounded-md" />
-                <div class="text-left">
-                  <div class="font-bold text-[#1F3A5F] text-sm">{{ s.name }}</div>
-                  <div class="text-xs text-gray-400">{{ s.brand }} {{ s.model }} • {{ s.year }}</div>
+                class="px-4 py-3 hover:bg-gray-50 cursor-pointer flex items-center gap-4 transition-colors border-b border-gray-50 last:border-0">
+                <img [src]="s.image" class="w-12 h-12 object-cover rounded-lg shadow-sm" />
+                <div class="text-left flex-1 min-w-0">
+                  <div class="font-bold text-[#1F3A5F] text-sm truncate">{{ s.name }}</div>
+                  <div class="text-[10px] text-gray-400 truncate">{{ s.brand }} {{ s.model }} • {{ s.year }}</div>
                 </div>
-                <div class="ml-auto font-bold text-[#4cb0ff] text-sm">{{ s.price }} DT</div>
+                <div class="ml-auto font-black text-[#4cb0ff] text-sm whitespace-nowrap">{{ s.price }} DT</div>
               </div>
             </div>
           </div>
 
-          <div class="md:col-span-1">
-            <button type="submit" class="w-full h-full bg-[#4cb0ff] hover:bg-[#3a96e0] text-white font-bold py-3 px-6 rounded-lg transition-all shadow-lg hover:shadow-[#4cb0ff]/20 flex items-center justify-center gap-2">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-              Trouver
-            </button>
-          </div>
+          <button type="submit" class="bg-[#4cb0ff] hover:bg-white hover:text-[#1F3A5F] text-white font-black py-3 sm:py-4 px-8 rounded-xl sm:rounded-full transition-all active:scale-95 shadow-xl shadow-black/20 flex items-center justify-center gap-3 text-base">
+            <span class="sm:hidden">Trouver mon modèle</span>
+            <span class="hidden sm:inline">Rechercher</span>
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7-7 7"/>
+            </svg>
+          </button>
         </div>
       </form>
     </div>
@@ -55,7 +71,7 @@
 <section class="py-16 bg-white">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-      <div sa="fade-up" class="text-center group">
+      <div sa="fade-up" class="text-center group p-4 bg-gray-50/50 rounded-2xl md:bg-transparent">
         <div class="w-16 h-16 mx-auto bg-[#4cb0ff]/10 rounded-2xl flex items-center justify-center mb-4 group-hover:bg-[#4cb0ff] transition-colors duration-300">
           <svg class="w-8 h-8 text-[#4cb0ff] group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
@@ -64,7 +80,7 @@
         <h3 class="text-lg font-bold text-[#1F3A5F] mb-2">Qualité certifiée</h3>
         <p class="text-gray-500 text-sm">Produits testés et conformes aux normes constructeurs.</p>
       </div>
-      <div sa="fade-up" [saDelay]="100" class="text-center group">
+      <div sa="fade-up" [saDelay]="100" class="text-center group p-4 bg-gray-50/50 rounded-2xl md:bg-transparent">
         <div class="w-16 h-16 mx-auto bg-[#4cb0ff]/10 rounded-2xl flex items-center justify-center mb-4 group-hover:bg-[#4cb0ff] transition-colors duration-300">
           <svg class="w-8 h-8 text-[#4cb0ff] group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
@@ -73,7 +89,7 @@
         <h3 class="text-lg font-bold text-[#1F3A5F] mb-2">Installation facile</h3>
         <p class="text-gray-500 text-sm">Miroirs clipsables prêts à poser en quelques minutes.</p>
       </div>
-      <div sa="fade-up" [saDelay]="200" class="text-center group">
+      <div sa="fade-up" [saDelay]="200" class="text-center group p-4 bg-gray-50/50 rounded-2xl md:bg-transparent">
         <div class="w-16 h-16 mx-auto bg-[#4cb0ff]/10 rounded-2xl flex items-center justify-center mb-4 group-hover:bg-[#4cb0ff] transition-colors duration-300">
           <svg class="w-8 h-8 text-[#4cb0ff] group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-24 0 9 9 0 0124 0z" />
@@ -82,7 +98,7 @@
         <h3 class="text-lg font-bold text-[#1F3A5F] mb-2">Livraison rapide</h3>
         <p class="text-gray-500 text-sm">Expédition partout en Tunisie sous 24/48h.</p>
       </div>
-      <div sa="fade-up" [saDelay]="300" class="text-center group">
+      <div sa="fade-up" [saDelay]="300" class="text-center group p-4 bg-gray-50/50 rounded-2xl md:bg-transparent">
         <div class="w-16 h-16 mx-auto bg-[#4cb0ff]/10 rounded-2xl flex items-center justify-center mb-4 group-hover:bg-[#4cb0ff] transition-colors duration-300">
           <svg class="w-8 h-8 text-[#4cb0ff] group-hover:text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
@@ -99,10 +115,16 @@
 <section class="py-16 bg-[#F8FAFC]">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="text-center mb-12">
-      <h2 sa="fade-up" class="text-3xl font-bold text-[#1F3A5F] mb-4">Produits populaires</h2>
-      <p sa="fade-up" class="text-gray-500">Nos meilleures ventes de miroirs de rétroviseur.</p>
+      <div sa="fade-up">
+        <h2 class="text-3xl md:text-4xl font-extrabold text-[#1F3A5F] mb-4">
+          Nos Rétroviseurs <span class="text-[#4cb0ff]">Populaires</span>
+        </h2>
+        <p class="text-gray-500 text-lg max-w-2xl mx-auto">
+          Découvrez les références les plus demandées pour les marques BMW, Mercedes, Audi et bien d'autres.
+        </p>
+      </div>
     </div>
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
       <app-product-card *ngFor="let p of featured()" [product]="p" />
     </div>
     <div class="text-center mt-12">

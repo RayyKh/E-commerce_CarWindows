@@ -1,4 +1,4 @@
-<header class="bg-[#1F3A5F] text-white sticky top-0 z-50 shadow-lg">
+<header class="bg-[#1F3A5F] text-white sticky top-0 z-[150] shadow-lg">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex items-center justify-between h-16">
       <a routerLink="/" class="flex items-center space-x-2">
@@ -37,25 +37,113 @@
         </a>
       </div>
 
-      <button class="md:hidden p-2" (click)="toggleMobileMenu()">
+      <button class="md:hidden relative w-10 h-10 flex items-center justify-center focus:outline-none z-[100]" (click)="toggleMobileMenu()">
         <span class="sr-only">Menu</span>
-        <svg *ngIf="!mobileMenuOpen()" class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-        </svg>
-        <svg *ngIf="mobileMenuOpen()" class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-        </svg>
+        <div class="flex flex-col justify-between w-6 h-4.5 transform transition-all duration-300">
+          <span class="block h-0.5 w-full bg-white rounded-full transform transition-all duration-300 origin-left" [class.rotate-45]="mobileMenuOpen()" [class.translate-x-1]="mobileMenuOpen()"></span>
+          <span class="block h-0.5 w-full bg-white rounded-full transition-all duration-300" [class.opacity-0]="mobileMenuOpen()"></span>
+          <span class="block h-0.5 w-full bg-white rounded-full transform transition-all duration-300 origin-left" [class.-rotate-45]="mobileMenuOpen()" [class.translate-x-1]="mobileMenuOpen()"></span>
+        </div>
       </button>
     </div>
   </div>
 
-  <div *ngIf="mobileMenuOpen()" class="md:hidden bg-[#1F3A5F] border-t border-[#2d5080]">
-    <nav class="px-4 py-3 space-y-2">
-      <a routerLink="/" class="block px-3 py-2 rounded-md font-['Montserrat'] font-semibold uppercase tracking-wider text-sm hover:bg-[#2d5080] transition-colors">Accueil</a>
-      <a routerLink="/catalogue" class="block px-3 py-2 rounded-md font-['Montserrat'] font-semibold uppercase tracking-wider text-sm hover:bg-[#2d5080] transition-colors">Catalogue</a>
-      <a routerLink="/mes-commandes" class="block px-3 py-2 rounded-md font-['Montserrat'] font-semibold uppercase tracking-wider text-sm hover:bg-[#2d5080] transition-colors">Mes commandes</a>
-      <a routerLink="/contact" class="block px-3 py-2 rounded-md font-['Montserrat'] font-semibold uppercase tracking-wider text-sm hover:bg-[#2d5080] transition-colors">Contact</a>
-      <a routerLink="/panier" class="block px-3 py-2 rounded-md font-['Montserrat'] font-semibold uppercase tracking-wider text-sm hover:bg-[#2d5080] transition-colors">Panier ({{ itemCount() }})</a>
-    </nav>
+  <!-- Menu Mobile - Tiroir Latéral (Side Drawer) -->
+  <div class="fixed inset-0 z-[200] md:hidden transition-all duration-300 pointer-events-none" 
+       [class.opacity-100]="mobileMenuOpen()" [class.pointer-events-auto]="mobileMenuOpen()" [class.opacity-0]="!mobileMenuOpen()">
+    
+    <!-- Overlay sombre -->
+    <div class="absolute inset-0 bg-black/50 transition-opacity duration-300" 
+         (click)="toggleMobileMenu()"></div>
+    
+    <!-- Panneau latéral -->
+    <div class="absolute right-0 top-0 bottom-0 w-[300px] bg-white transition-transform duration-300 ease-out transform flex flex-col"
+         [class.translate-x-0]="mobileMenuOpen()" [class.translate-x-full]="!mobileMenuOpen()">
+      
+      <!-- En-tête du menu -->
+      <div class="flex items-center justify-between p-6 border-b border-gray-100">
+        <div class="flex items-center space-x-2">
+          <div class="w-8 h-8 bg-[#1F3A5F] rounded-lg flex items-center justify-center">
+            <span class="text-white font-black text-xs">sos</span>
+          </div>
+          <span class="text-[#1F3A5F] font-bold text-lg tracking-tight">SOS Rétro</span>
+        </div>
+        <button (click)="toggleMobileMenu()" class="p-2 text-gray-400 hover:text-red-500 transition-colors">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Liens du menu -->
+      <nav class="flex-1 overflow-y-auto py-4">
+        <div class="px-6 py-2">
+          <p class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-4">Menu Principal</p>
+          <div class="space-y-1">
+            <a routerLink="/" (click)="toggleMobileMenu()" 
+               class="flex items-center space-x-4 py-3 text-gray-600 font-semibold hover:text-[#1F3A5F] transition-colors">
+              <svg class="w-5 h-5 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+              </svg>
+              <span>Accueil</span>
+            </a>
+
+            <a routerLink="/catalogue" (click)="toggleMobileMenu()" 
+               class="flex items-center space-x-4 py-3 text-gray-600 font-semibold hover:text-[#1F3A5F] transition-colors">
+              <svg class="w-5 h-5 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
+              </svg>
+              <span>Catalogue</span>
+            </a>
+
+            <a routerLink="/mes-commandes" (click)="toggleMobileMenu()" 
+               class="flex items-center space-x-4 py-3 text-gray-600 font-semibold hover:text-[#1F3A5F] transition-colors">
+              <svg class="w-5 h-5 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+              </svg>
+              <span>Mes commandes</span>
+            </a>
+
+            <a routerLink="/contact" (click)="toggleMobileMenu()" 
+               class="flex items-center space-x-4 py-3 text-gray-600 font-semibold hover:text-[#1F3A5F] transition-colors">
+              <svg class="w-5 h-5 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+              </svg>
+              <span>Contact</span>
+            </a>
+          </div>
+        </div>
+
+        <div class="px-6 py-6 border-t border-gray-50 mt-4">
+          <p class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-4">Votre Shopping</p>
+          <a routerLink="/panier" (click)="toggleMobileMenu()" 
+             class="flex items-center justify-between p-4 rounded-2xl bg-[#F8FAFC] border border-gray-100 hover:border-[#4cb0ff] transition-all group">
+            <div class="flex items-center space-x-3">
+              <div class="w-10 h-10 rounded-xl bg-white flex items-center justify-center shadow-sm group-hover:bg-[#4cb0ff] transition-colors">
+                <svg class="w-5 h-5 text-[#1F3A5F] group-hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+                </svg>
+              </div>
+              <div>
+                <p class="text-sm font-bold text-[#1F3A5F]">Mon Panier</p>
+                <p class="text-[10px] text-gray-400">{{ itemCount() }} article(s)</p>
+              </div>
+            </div>
+            <svg class="w-5 h-5 text-gray-300 group-hover:text-[#4cb0ff] transform transition-transform group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+            </svg>
+          </a>
+        </div>
+      </nav>
+
+      <!-- Pied du menu -->
+      <div class="p-6 bg-gray-50/50 border-t border-gray-50">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Tunisie</span>
+          <span class="text-[10px] font-bold text-[#4cb0ff]">En ligne</span>
+        </div>
+        <p class="text-[10px] text-gray-300">© 2026 VitréAuto. Tous droits réservés.</p>
+      </div>
+    </div>
   </div>
 </header>
