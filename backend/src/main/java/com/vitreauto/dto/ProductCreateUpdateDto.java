@@ -14,6 +14,8 @@ public class ProductCreateUpdateDto {
   @NotNull
   @DecimalMin("0.0")
   private BigDecimal prix;
+  private BigDecimal prixAchat;
+  private BigDecimal prixVente;
   @NotBlank
   private String marqueVoiture;
   @NotBlank

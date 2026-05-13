@@ -21,6 +21,8 @@ interface ApiProduct {
   imageUrl: string;
   stock: number;
   status: string;
+  prixAchat?: number;
+  prixVente?: number;
   createdAt: string;
 }
 
@@ -45,6 +47,8 @@ export class ProductApiService {
       name: p.nom || 'Produit sans nom',
       description: p.description || '',
       price: p.prix || 0,
+      prixAchat: p.prixAchat || 0,
+      prixVente: p.prixVente || 0,
       brand: p.marqueVoiture || 'Inconnue',
       model: p.modeleVoiture || '',
       year: p.annee || '',

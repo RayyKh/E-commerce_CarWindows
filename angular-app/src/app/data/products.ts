@@ -6,6 +6,8 @@ export interface Product {
   model: string;
   year: string;
   price: number;
+  prixAchat?: number;
+  prixVente?: number;
   availability: 'En stock' | 'Sur commande' | 'Rupture' | 'Épuisé';
   description: string;
   image: string;

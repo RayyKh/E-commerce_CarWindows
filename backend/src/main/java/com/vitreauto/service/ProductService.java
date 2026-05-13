@@ -51,6 +51,8 @@ public class ProductService {
     p.setNom(dto.getNom());
     p.setDescription(dto.getDescription());
     p.setPrix(dto.getPrix());
+    p.setPrixAchat(dto.getPrixAchat());
+    p.setPrixVente(dto.getPrixVente());
     p.setMarqueVoiture(dto.getMarqueVoiture());
     p.setModeleVoiture(dto.getModeleVoiture());
     p.setAnnee(dto.getAnnee());
@@ -71,6 +73,8 @@ public class ProductService {
     p.setNom(dto.getNom());
     p.setDescription(dto.getDescription());
     p.setPrix(dto.getPrix());
+    p.setPrixAchat(dto.getPrixAchat());
+    p.setPrixVente(dto.getPrixVente());
     p.setMarqueVoiture(dto.getMarqueVoiture());
     p.setModeleVoiture(dto.getModeleVoiture());
     p.setAnnee(dto.getAnnee());

@@ -1,11 +1,20 @@
 package com.vitreauto.entity;
 
-import jakarta.persistence.*;
-import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+
+import org.hibernate.annotations.CreationTimestamp;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Getter
 @Setter
@@ -23,6 +32,8 @@ public class Product {
   private String description;
   @Column(nullable = false)
   private BigDecimal prix;
+  private BigDecimal prixAchat;
+  private BigDecimal prixVente;
   @Column(nullable = false)
   private String marqueVoiture;
   @Column(nullable = false)

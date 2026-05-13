@@ -35,6 +35,8 @@ interface ProductForm {
   nom: string;
   description: string;
   prix: number;
+  prixAchat: number;
+  prixVente: number;
   marqueVoiture: string;
   modeleVoiture: string;
   annee: string;
@@ -50,17 +52,76 @@ interface ProductForm {
   templateUrl: './admin-dashboard.component.html',
 })
 export class AdminDashboardComponent implements OnInit, OnDestroy {
-  activeTab = signal<'orders' | 'products' | 'revenue' | 'history'>('orders');
+  activeTab = signal<'orders' | 'products' | 'revenue' | 'history' | 'margins'>('orders');
   
-  setActiveTab(tab: 'orders' | 'products' | 'revenue' | 'history') {
+  setActiveTab(tab: 'orders' | 'products' | 'revenue' | 'history' | 'margins') {
     this.activeTab.set(tab);
     if (tab === 'revenue') {
       setTimeout(() => this.loadRevenue(), 100);
+    } else if (tab === 'margins') {
+      this.loadAllProducts();
     }
   }
 
   orders = signal<Order[]>([]);
   products = signal<any[]>([]);
+  allProductsForMargins = signal<any[]>([]);
+  marginSearchTerm = signal<string>('');
+  marginBrandFilter = signal<string>('all');
+  marginCurrentPage = signal<number>(0);
+  marginPageSize = 15;
+
+  filteredMargins = computed(() => {
+    const prods = this.allProductsForMargins();
+    const query = this.marginSearchTerm().toLowerCase().trim();
+    const brand = this.marginBrandFilter();
+
+    return prods.filter(p => {
+      const matchesQuery = !query || 
+        p.name?.toLowerCase().includes(query) || 
+        p.model?.toLowerCase().includes(query) ||
+        p.brand?.toLowerCase().includes(query);
+      
+      const matchesBrand = brand === 'all' || p.brand === brand;
+      
+      return matchesQuery && matchesBrand;
+    });
+  });
+
+  paginatedMargins = computed(() => {
+    const prods = this.filteredMargins();
+    const start = this.marginCurrentPage() * this.marginPageSize;
+    return prods.slice(start, start + this.marginPageSize);
+  });
+
+  marginTotalPages = computed(() => {
+    return Math.ceil(this.filteredMargins().length / this.marginPageSize);
+  });
+
+  marginStats = computed(() => {
+    const prods = this.allProductsForMargins();
+    if (prods.length === 0) return { count: 0, avgMarginDT: 0, avgMarginPercent: 0 };
+    
+    let totalMarginDT = 0;
+    let totalMarginPercent = 0;
+    let validProducts = 0;
+
+    prods.forEach(p => {
+      const purchase = p.prixAchat || 0;
+      const sale = p.prixVente || 0;
+      if (purchase > 0) {
+        totalMarginDT += (sale - purchase);
+        totalMarginPercent += ((sale - purchase) / purchase) * 100;
+        validProducts++;
+      }
+    });
+
+    return {
+      count: prods.length,
+      avgMarginDT: validProducts > 0 ? totalMarginDT / validProducts : 0,
+      avgMarginPercent: validProducts > 0 ? totalMarginPercent / validProducts : 0
+    };
+  });
   
   // Filtering & Pagination
   searchTerm = signal<string>('');
@@ -95,6 +156,8 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
     nom: '',
     description: '',
     prix: 0,
+    prixAchat: 0,
+    prixVente: 0,
     marqueVoiture: '',
     modeleVoiture: '',
     annee: '',
@@ -179,6 +242,12 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
       this.products.set(res.content.map((p: any) => this.productApi.toFrontend(p)));
       this.totalPages.set(res.totalPages);
       this.totalProducts.set(res.totalElements);
+    });
+  }
+
+  loadAllProducts() {
+    this.productApi.list(0, 2000).subscribe(res => {
+      this.allProductsForMargins.set(res.content.map(p => this.productApi.toFrontend(p)));
     });
   }
 
@@ -300,6 +369,8 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
       nom: p.name || '',
       description: p.description || '',
       prix: p.price || 0,
+      prixAchat: p.prixAchat || 0,
+      prixVente: p.prixVente || 0,
       marqueVoiture: p.brand || '',
       modeleVoiture: p.model || '',
       annee: p.year || '',
@@ -319,6 +390,8 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
       nom: '',
       description: '',
       prix: 0,
+      prixAchat: 0,
+      prixVente: 0,
       marqueVoiture: '',
       modeleVoiture: '',
       annee: '',
@@ -330,6 +403,9 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
 
   saveProduct() {
     const p = this.editingProduct();
+    // Synchroniser prix avec prixVente pour la compatibilité
+    this.productForm.prix = this.productForm.prixVente;
+    
     if (p) {
       this.productApi.adminUpdate(p.id, this.productForm).subscribe(() => {
         this.loadProducts();
@@ -363,57 +439,97 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
     const file = event.target.files[0];
     if (!file) return;
 
-    // First upload to server
     this.productApi.uploadCSV(file).subscribe(() => {
       this.loadCSVFiles();
       
       const reader = new FileReader();
       reader.onload = async (e: any) => {
         const content = e.target.result;
-        const lines = content.split('\n');
-        const header = lines[0].split(';');
+        // Gérer les différents types de retours à la ligne (\n, \r\n, \r)
+        const lines = content.split(/\r?\n/).filter((l: string) => l.trim().length > 0);
+        if (lines.length < 2) {
+          alert("Le fichier semble vide ou mal formaté.");
+          return;
+        }
+
+        // Détecter le délimiteur (; ou ,)
+        const firstLine = lines[0];
+        const delimiter = firstLine.includes(';') ? ';' : ',';
+        const header = firstLine.split(delimiter).map((h: string) => h.trim());
         
         const productsToImport = [];
         for (let i = 1; i < lines.length; i++) {
-          if (!lines[i].trim()) continue;
-          const values = lines[i].split(';');
-        const p: any = {};
-        header.forEach((col: string, idx: number) => {
-          const key = col.trim();
-          let val = values[idx]?.trim() || '';
-          if (key === 'prix' || key === 'stock') {
-            p[key] = parseFloat(val) || 0;
-            if (key === 'stock') {
-              if (p[key] === 0) p['status'] = 'Épuisé';
-              else if (p[key] >= 1) p['status'] = 'En stock';
+          const values = lines[i].split(delimiter).map((v: string) => v.trim());
+          const p: any = { 
+            stock: 10, 
+            status: 'En stock', 
+            description: 'Miroir de rétroviseur de haute qualité, conforme aux normes constructeurs.' 
+          };
+          
+          header.forEach((col: string, idx: number) => {
+            const rawKey = col;
+            const val = values[idx] || '';
+            
+            if (rawKey === 'Désignation' || rawKey === 'nom') {
+              p['nom'] = val;
+              if (val) {
+                const parts = val.split(' ');
+                p['marqueVoiture'] = parts[0].toUpperCase();
+                p['modeleVoiture'] = parts.slice(1).join(' ') || 'Modèle standard';
+              }
+            } else if (rawKey === 'Années' || rawKey === 'annee') {
+              p['annee'] = val || '—';
+            } else if (rawKey === 'Prix TTC' || rawKey === 'prixAchat') {
+              p['prixAchat'] = parseFloat(val.replace(',', '.')) || 0;
+            } else if (rawKey === 'Prix Vente' || rawKey === 'prixVente' || rawKey === 'prix') {
+              const prix = parseFloat(val.replace(',', '.')) || 0;
+              p['prixVente'] = prix;
+              p['prix'] = prix;
+            } else if (rawKey === 'stock') {
+              p['stock'] = parseInt(val) || 0;
+              p['status'] = p['stock'] === 0 ? 'Épuisé' : 'En stock';
+            } else if (rawKey === 'imageUrl') {
+              const filename = val.split(/[/\\]/).pop();
+              p['imageUrl'] = filename ? `/api/images/${filename.trim()}` : 'https://placehold.jp/600x400.png?text=SOS%20Rétro';
             }
-          } else if (key === 'imageUrl') {
-            // Transform filenames to accessible API URLs
-            const filename = val.split('/').pop() || val.split('\\').pop();
-            if (filename && filename.trim() !== '') {
-              // On utilise un chemin relatif qui sera complété par le service avec l'IP dynamique
-              p[key] = `/api/images/${filename.trim()}`;
-            } else {
-              p[key] = 'https://placehold.jp/600x400.png?text=SOS%20Rétro';
-            }
-          } else {
-            p[key] = val;
+          });
+          
+          // Vérification des champs obligatoires pour éviter le rejet par le backend
+          if (!p['nom']) continue; // Sauter si pas de nom
+
+          // Application de la règle de marge 100%
+          if (p['prixVente'] > 0 && (!p['prixAchat'] || p['prixAchat'] === 0)) {
+            p['prixAchat'] = p['prixVente'] / 2;
+          } else if (p['prixAchat'] > 0 && (!p['prixVente'] || p['prixVente'] === 0)) {
+            p['prixVente'] = p['prixAchat'] * 2;
+            p['prix'] = p['prixVente'];
           }
-        });
-        productsToImport.push(p);
+
+          if (!p['marqueVoiture']) p['marqueVoiture'] = 'INCONNUE';
+          if (!p['modeleVoiture']) p['modeleVoiture'] = 'Standard';
+          if (!p['annee']) p['annee'] = '—';
+          if (!p['prix']) p['prix'] = p['prixVente'] || 0;
+          
+          productsToImport.push(p);
+        }
+
+        if (productsToImport.length === 0) {
+          alert("Aucun produit valide n'a été trouvé dans le fichier. Vérifiez les colonnes 'Désignation' ou 'nom'.");
+          return;
         }
 
         if (confirm(`Voulez-vous importer ${productsToImport.length} produits ?`)) {
           let count = 0;
           for (const p of productsToImport) {
             try {
+              // Utiliser lastValueFrom au lieu de toPromise() si possible, ou s'assurer du traitement
               await this.productApi.adminCreate(p).toPromise();
               count++;
             } catch (err) {
               console.error('Erreur import produit:', p.nom, err);
             }
           }
-          alert(`${count} produits importés avec succès !`);
+          alert(`${count} produits importés avec succès sur ${productsToImport.length} trouvés.`);
           this.loadProducts();
         }
       };
@@ -424,36 +540,64 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
   async importExistingCSV(filename: string) {
     this.productApi.downloadCSV(filename).subscribe(async (blob: Blob) => {
       const text = await blob.text();
-      const lines = text.split('\n');
-      const header = lines[0].split(';');
+      const lines = text.split(/\r?\n/).filter(l => l.trim().length > 0);
+      if (lines.length < 2) return;
+
+      const delimiter = lines[0].includes(';') ? ';' : ',';
+      const header = lines[0].split(delimiter).map(h => h.trim());
       
       const productsToImport = [];
       for (let i = 1; i < lines.length; i++) {
-        if (!lines[i].trim()) continue;
-        const values = lines[i].split(';');
-        const p: any = {};
+        const values = lines[i].split(delimiter).map((v: string) => v.trim());
+        const p: any = { 
+          stock: 10, 
+          status: 'En stock', 
+          description: 'Miroir de rétroviseur de haute qualité, conforme aux normes constructeurs.' 
+        };
+        
         header.forEach((col: string, idx: number) => {
-          const key = col.trim();
-          let val = values[idx]?.trim() || '';
-          if (key === 'prix' || key === 'stock') {
-            p[key] = parseFloat(val) || 0;
-            if (key === 'stock') {
-              if (p[key] === 0) p['status'] = 'Épuisé';
-              else if (p[key] >= 1) p['status'] = 'En stock';
+          const rawKey = col;
+          const val = values[idx] || '';
+          
+          if (rawKey === 'Désignation' || rawKey === 'nom') {
+            p['nom'] = val;
+            if (val) {
+              const parts = val.split(' ');
+              p['marqueVoiture'] = parts[0].toUpperCase();
+              p['modeleVoiture'] = parts.slice(1).join(' ') || 'Modèle standard';
             }
-          } else if (key === 'imageUrl') {
-            // If image path starts with /images/, transform it to our API endpoint
-            const filename = val.split('/').pop() || val.split('\\').pop();
-            if (filename && filename.trim() !== '') {
-              // On utilise un chemin relatif qui sera complété par le service avec l'IP dynamique
-              p[key] = `/api/images/${filename.trim()}`;
-            } else {
-              p[key] = 'https://placehold.jp/600x400.png?text=SOS%20Rétro';
-            }
-          } else {
-            p[key] = val;
+          } else if (rawKey === 'Années' || rawKey === 'annee') {
+            p['annee'] = val || '—';
+          } else if (rawKey === 'Prix TTC' || rawKey === 'prixAchat') {
+            p['prixAchat'] = parseFloat(val.replace(',', '.')) || 0;
+          } else if (rawKey === 'Prix Vente' || rawKey === 'prixVente' || rawKey === 'prix') {
+            const prix = parseFloat(val.replace(',', '.')) || 0;
+            p['prixVente'] = prix;
+            p['prix'] = prix;
+          } else if (rawKey === 'stock') {
+            p['stock'] = parseInt(val) || 0;
+            p['status'] = p['stock'] === 0 ? 'Épuisé' : 'En stock';
+          } else if (rawKey === 'imageUrl') {
+            const filename = val.split(/[/\\]/).pop();
+            p['imageUrl'] = filename ? `/api/images/${filename.trim()}` : 'https://placehold.jp/600x400.png?text=SOS%20Rétro';
           }
         });
+        
+        if (!p['nom']) continue;
+
+        // Application de la règle de marge 100%
+        if (p['prixVente'] > 0 && (!p['prixAchat'] || p['prixAchat'] === 0)) {
+          p['prixAchat'] = p['prixVente'] / 2;
+        } else if (p['prixAchat'] > 0 && (!p['prixVente'] || p['prixVente'] === 0)) {
+          p['prixVente'] = p['prixAchat'] * 2;
+          p['prix'] = p['prixVente'];
+        }
+
+        if (!p['marqueVoiture']) p['marqueVoiture'] = 'INCONNUE';
+        if (!p['modeleVoiture']) p['modeleVoiture'] = 'Standard';
+        if (!p['annee']) p['annee'] = '—';
+        if (!p['prix']) p['prix'] = p['prixVente'] || 0;
+        
         productsToImport.push(p);
       }
 
@@ -467,7 +611,7 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
             console.error('Erreur import produit:', p.nom, err);
           }
         }
-        alert(`${count} produits importés avec succès !`);
+        alert(`${count} produits importés avec succès sur ${productsToImport.length} trouvés.`);
         this.loadProducts();
       }
     });
