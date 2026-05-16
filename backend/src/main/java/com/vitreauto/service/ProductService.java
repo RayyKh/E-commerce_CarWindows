@@ -32,7 +32,7 @@ public class ProductService {
     if (marque != null && (marque.trim().isEmpty() || "all".equalsIgnoreCase(marque) || "Toutes".equalsIgnoreCase(marque))) marque = null;
     if (modele != null && (modele.trim().isEmpty() || "all".equalsIgnoreCase(modele) || "Tous".equalsIgnoreCase(modele))) modele = null;
     if (annee != null && (annee.trim().isEmpty() || "all".equalsIgnoreCase(annee) || "Toutes".equalsIgnoreCase(annee))) annee = null;
-    if (availability != null && (availability.trim().isEmpty() || "all".equalsIgnoreCase(availability) || "Toutes".equalsIgnoreCase(availability))) availability = null;
+    if (availability != null && (availability.trim().isEmpty() || "all".equalsIgnoreCase(availability) || "Toutes".equalsIgnoreCase(availability) || "Tous".equalsIgnoreCase(availability) || "Toute".equalsIgnoreCase(availability))) availability = null;
     if (query != null && query.trim().isEmpty()) query = null;
     return productRepository.findBySearch(marque, modele, annee, availability, query, pageable);
   }

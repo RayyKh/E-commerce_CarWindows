@@ -56,7 +56,7 @@ export class ProductApiService {
       year: p.annee || '',
       image: img,
       type: 'Pare-brise',
-      availability: (finalPrice === 0) ? 'Sur commande' : ((p.status === 'Épuisé' || p.status === 'Rupture') ? p.status : 'En stock') as any,
+      availability: (finalPrice === 0) ? 'Sur commande' : (p.status === 'Épuisé' || p.status === 'Rupture' ? p.status : 'En stock') as any,
       category: 'Standard',
       stock: p.stock
     };

@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, signal } from '@angular/core';
 
-export const HERO_IMAGE = '/hero4.png';
+export const HERO_IMAGE = '/hero_new.png';
 
 @Component({
   selector: 'app-assets',
