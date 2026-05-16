@@ -29,7 +29,9 @@ export class CatalogComponent {
   protected readonly modelsSig = signal<string[]>([]);
   protected readonly showMobileFilters = signal(false);
 
-  protected readonly filtered = computed(() => this.productsSig());
+  protected readonly filtered = computed(() => {
+    return this.productsSig();
+  });
   constructor(private route: ActivatedRoute, private router: Router, private api: ProductApiService, private title: Title, private meta: Meta) {
      this.title.setTitle('Catalogue de Rétroviseurs - SOS Rétro Tunisie');
      this.meta.updateTag({ name: 'description', content: 'Explorez le catalogue SOS Rétro : miroirs et glaces de rétroviseurs pour toutes les marques automobiles en Tunisie.' });

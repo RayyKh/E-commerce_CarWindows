@@ -24,7 +24,11 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
          "(:marque is null or lower(trim(p.marqueVoiture)) = lower(trim(:marque))) and " +
          "(:modele is null or lower(trim(p.modeleVoiture)) = lower(trim(:modele))) and " +
          "(:annee is null or trim(p.annee) = trim(:annee)) and " +
-         "(:availability is null or lower(trim(p.status)) = lower(trim(:availability))) and " +
+         "(:availability is null or " +
+         " (lower(trim(:availability)) = 'en stock' and p.prix > 0) or " +
+         " (lower(trim(:availability)) = 'sur commande' and p.prix = 0) or " +
+         " (lower(trim(:availability)) = 'épuisé' and lower(trim(p.status)) = 'épuisé') or " +
+         " (lower(trim(p.status)) = lower(trim(:availability)))) and " +
          "(:query is null or (lower(p.nom) like lower(concat('%', :query, '%')) or " +
          "lower(p.marqueVoiture) like lower(concat('%', :query, '%')) or " +
          "lower(p.modeleVoiture) like lower(concat('%', :query, '%')) or " +

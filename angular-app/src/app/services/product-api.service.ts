@@ -42,11 +42,13 @@ export class ProductApiService {
       img = `${this.base}${img}`;
     }
     
+    const finalPrice = p.prix || 0;
+    
     return {
       id: String(p.id),
       name: p.nom || 'Produit sans nom',
       description: p.description || '',
-      price: p.prix || 0,
+      price: finalPrice,
       prixAchat: p.prixAchat || 0,
       prixVente: p.prixVente || 0,
       brand: p.marqueVoiture || 'Inconnue',
@@ -54,7 +56,7 @@ export class ProductApiService {
       year: p.annee || '',
       image: img,
       type: 'Pare-brise',
-      availability: (p.status || (p.stock > 0 ? 'En stock' : 'Rupture')) as any,
+      availability: (finalPrice === 0) ? 'Sur commande' : ((p.status === 'Épuisé' || p.status === 'Rupture') ? p.status : 'En stock') as any,
       category: 'Standard',
       stock: p.stock
     };

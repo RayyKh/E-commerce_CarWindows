@@ -49,7 +49,9 @@
                   <div class="font-bold text-[#1F3A5F] text-sm truncate">{{ s.name }}</div>
                   <div class="text-[10px] text-gray-400 truncate">{{ s.brand }} {{ s.model }} • {{ s.year }}</div>
                 </div>
-                <div class="ml-auto font-black text-[#4cb0ff] text-sm whitespace-nowrap">{{ s.price }} DT</div>
+                <div class="ml-auto font-black text-[#4cb0ff] text-sm whitespace-nowrap">
+                          {{ s.price > 0 ? s.price + ' DT' : 'Sur commande' }}
+                        </div>
               </div>
             </div>
           </div>

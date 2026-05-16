@@ -1,5 +1,7 @@
 package com.vitreauto.service;
 
+import java.math.BigDecimal;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -27,10 +29,10 @@ public class ProductService {
   }
 
   public Page<Product> search(String marque, String modele, String annee, String availability, String query, Pageable pageable) {
-    if (marque != null && (marque.trim().isEmpty() || "all".equalsIgnoreCase(marque))) marque = null;
-    if (modele != null && (modele.trim().isEmpty() || "all".equalsIgnoreCase(modele))) modele = null;
-    if (annee != null && (annee.trim().isEmpty() || "all".equalsIgnoreCase(annee))) annee = null;
-    if (availability != null && (availability.trim().isEmpty() || "all".equalsIgnoreCase(availability))) availability = null;
+    if (marque != null && (marque.trim().isEmpty() || "all".equalsIgnoreCase(marque) || "Toutes".equalsIgnoreCase(marque))) marque = null;
+    if (modele != null && (modele.trim().isEmpty() || "all".equalsIgnoreCase(modele) || "Tous".equalsIgnoreCase(modele))) modele = null;
+    if (annee != null && (annee.trim().isEmpty() || "all".equalsIgnoreCase(annee) || "Toutes".equalsIgnoreCase(annee))) annee = null;
+    if (availability != null && (availability.trim().isEmpty() || "all".equalsIgnoreCase(availability) || "Toutes".equalsIgnoreCase(availability))) availability = null;
     if (query != null && query.trim().isEmpty()) query = null;
     return productRepository.findBySearch(marque, modele, annee, availability, query, pageable);
   }
@@ -58,13 +60,14 @@ public class ProductService {
     p.setAnnee(dto.getAnnee());
     p.setImageUrl(dto.getImageUrl());
     p.setStock(dto.getStock());
-    if (dto.getStock() != null && dto.getStock() == 0) {
-      p.setStatus("Épuisé");
-    } else if (dto.getStock() != null && dto.getStock() >= 1) {
+    
+    // Règle métier : Prix > 0 => En stock, Prix = 0 => Sur commande
+    if (p.getPrix() != null && p.getPrix().compareTo(BigDecimal.ZERO) > 0) {
       p.setStatus("En stock");
     } else {
-      p.setStatus(dto.getStatus());
+      p.setStatus("Sur commande");
     }
+    
     return productRepository.save(p);
   }
 
@@ -80,13 +83,14 @@ public class ProductService {
     p.setAnnee(dto.getAnnee());
     p.setImageUrl(dto.getImageUrl());
     p.setStock(dto.getStock());
-    if (dto.getStock() != null && dto.getStock() == 0) {
-      p.setStatus("Épuisé");
-    } else if (dto.getStock() != null && dto.getStock() >= 1) {
+    
+    // Règle métier : Prix > 0 => En stock, Prix = 0 => Sur commande
+    if (p.getPrix() != null && p.getPrix().compareTo(BigDecimal.ZERO) > 0) {
       p.setStatus("En stock");
     } else {
-      p.setStatus(dto.getStatus());
+      p.setStatus("Sur commande");
     }
+    
     return productRepository.save(p);
   }
 

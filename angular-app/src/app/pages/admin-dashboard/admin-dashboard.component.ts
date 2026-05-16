@@ -405,6 +405,8 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
     const p = this.editingProduct();
     // Synchroniser prix avec prixVente pour la compatibilité
     this.productForm.prix = this.productForm.prixVente;
+    // Appliquer la logique de disponibilité
+    this.productForm.status = this.productForm.prix > 0 ? 'En stock' : 'Sur commande';
     
     if (p) {
       this.productApi.adminUpdate(p.id, this.productForm).subscribe(() => {
@@ -487,7 +489,6 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
               p['prix'] = prix;
             } else if (rawKey === 'stock') {
               p['stock'] = parseInt(val) || 0;
-              p['status'] = p['stock'] === 0 ? 'Épuisé' : 'En stock';
             } else if (rawKey === 'imageUrl') {
               const filename = val.split(/[/\\]/).pop();
               p['imageUrl'] = filename ? `/api/images/${filename.trim()}` : 'https://placehold.jp/600x400.png?text=SOS%20Rétro';
@@ -509,6 +510,8 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
           if (!p['modeleVoiture']) p['modeleVoiture'] = 'Standard';
           if (!p['annee']) p['annee'] = '—';
           if (!p['prix']) p['prix'] = p['prixVente'] || 0;
+          
+          p['status'] = p['prix'] > 0 ? 'En stock' : 'Sur commande';
           
           productsToImport.push(p);
         }
@@ -576,7 +579,6 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
             p['prix'] = prix;
           } else if (rawKey === 'stock') {
             p['stock'] = parseInt(val) || 0;
-            p['status'] = p['stock'] === 0 ? 'Épuisé' : 'En stock';
           } else if (rawKey === 'imageUrl') {
             const filename = val.split(/[/\\]/).pop();
             p['imageUrl'] = filename ? `/api/images/${filename.trim()}` : 'https://placehold.jp/600x400.png?text=SOS%20Rétro';
@@ -597,6 +599,8 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
         if (!p['modeleVoiture']) p['modeleVoiture'] = 'Standard';
         if (!p['annee']) p['annee'] = '—';
         if (!p['prix']) p['prix'] = p['prixVente'] || 0;
+        
+        p['status'] = p['prix'] > 0 ? 'En stock' : 'Sur commande';
         
         productsToImport.push(p);
       }
