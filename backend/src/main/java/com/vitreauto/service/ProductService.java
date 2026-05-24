@@ -59,12 +59,13 @@ public class ProductService {
     p.setModeleVoiture(dto.getModeleVoiture());
     p.setAnnee(dto.getAnnee());
     p.setImageUrl(dto.getImageUrl());
-    p.setStock(dto.getStock());
     
-    // Règle métier : Prix > 0 => En stock, Prix = 0 => Sur commande
-    if (p.getPrix() != null && p.getPrix().compareTo(BigDecimal.ZERO) > 0) {
+    // Règle métier : Si le prix est > 0, on s'assure que le stock est au moins à 1000 pour éviter le blocage
+    if (dto.getPrix() != null && dto.getPrix().compareTo(BigDecimal.ZERO) > 0) {
+      p.setStock(Math.max(dto.getStock() != null ? dto.getStock() : 0, 1000));
       p.setStatus("En stock");
     } else {
+      p.setStock(dto.getStock() != null ? dto.getStock() : 0);
       p.setStatus("Sur commande");
     }
     
@@ -82,12 +83,13 @@ public class ProductService {
     p.setModeleVoiture(dto.getModeleVoiture());
     p.setAnnee(dto.getAnnee());
     p.setImageUrl(dto.getImageUrl());
-    p.setStock(dto.getStock());
     
-    // Règle métier : Prix > 0 => En stock, Prix = 0 => Sur commande
-    if (p.getPrix() != null && p.getPrix().compareTo(BigDecimal.ZERO) > 0) {
+    // Règle métier : Si le prix est > 0, on s'assure que le stock est au moins à 1000 pour éviter le blocage
+    if (dto.getPrix() != null && dto.getPrix().compareTo(BigDecimal.ZERO) > 0) {
+      p.setStock(Math.max(dto.getStock() != null ? dto.getStock() : 0, 1000));
       p.setStatus("En stock");
     } else {
+      p.setStock(dto.getStock() != null ? dto.getStock() : 0);
       p.setStatus("Sur commande");
     }
     

@@ -21,4 +21,4 @@ security:
     secret: 9vZtJpFfQJt3Nf0Eo8RjS6YxC1Kb2Ld5Hg7Pi2Uw4Xy9ZpAbCdEfGhIjKlMnOpQr
     expiration-ms: 604800000
 server:
-  port: 8081
+  port: 8082

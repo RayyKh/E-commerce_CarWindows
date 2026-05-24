@@ -57,7 +57,10 @@ public class OrderService {
     BigDecimal total = BigDecimal.ZERO;
     for (OrderItemRequest itemReq : request.getProducts()) {
       Product product = productRepository.findById(itemReq.getProductId()).orElseThrow(() -> new RuntimeException("Product not found"));
-      if (product.getStock() < itemReq.getQuantity()) throw new RuntimeException("Stock insuffisant");
+      // Règle métier : Si le prix est > 0, on considère le produit toujours disponible
+      if (product.getPrix().compareTo(BigDecimal.ZERO) <= 0 && product.getStock() < itemReq.getQuantity()) {
+        throw new RuntimeException("Stock insuffisant");
+      }
       BigDecimal price = product.getPrix().multiply(BigDecimal.valueOf(itemReq.getQuantity()));
       total = total.add(price);
     }

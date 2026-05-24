@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { Component, computed, OnDestroy, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Chart, registerables } from 'chart.js';
@@ -169,7 +169,13 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
   private base = environment.apiUrl;
 
   private refreshTimer: any = null;
-  constructor(private http: HttpClient, private productApi: ProductApiService, private auth: AuthApiService, private router: Router) {}
+  
+  private http = inject(HttpClient);
+  private productApi = inject(ProductApiService);
+  private auth = inject(AuthApiService);
+  private router = inject(Router);
+
+  constructor() {}
 
   ngOnInit() {
     this.loadOrders();
@@ -183,7 +189,7 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
   }
 
   loadCSVFiles() {
-    this.productApi.getCSVFiles().subscribe(files => {
+    this.productApi.getCSVFiles().subscribe((files: string[]) => {
       this.csvFiles.set(files);
     });
   }
@@ -218,7 +224,7 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
   }
 
   loadOrders() {
-    this.http.get<Order[]>(`${this.base}/admin/orders`).subscribe((res) => {
+    this.http.get<Order[]>(`${this.base}/admin/orders`).subscribe((res: Order[]) => {
       const currentOrders = this.orders();
       const newOrders = res.reverse();
       
@@ -238,7 +244,7 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
     const brand = this.selectedBrandFilter();
     const availability = this.selectedAvailabilityFilter();
     
-    this.productApi.adminSearch(query, brand, this.currentPage(), this.pageSize, availability).subscribe(res => {
+    this.productApi.adminSearch(query, brand, this.currentPage(), this.pageSize, availability).subscribe((res: any) => {
       this.products.set(res.content.map((p: any) => this.productApi.toFrontend(p)));
       this.totalPages.set(res.totalPages);
       this.totalProducts.set(res.totalElements);
@@ -246,8 +252,8 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
   }
 
   loadAllProducts() {
-    this.productApi.list(0, 2000).subscribe(res => {
-      this.allProductsForMargins.set(res.content.map(p => this.productApi.toFrontend(p)));
+    this.productApi.list(0, 2000).subscribe((res: any) => {
+      this.allProductsForMargins.set(res.content.map((p: any) => this.productApi.toFrontend(p)));
     });
   }
 
@@ -273,11 +279,11 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
   filteredProducts = computed(() => this.products());
   
   loadRevenue() {
-    this.http.get<number>(`${this.base}/admin/dashboard/total-revenue`).subscribe(v => this.totalRevenue.set(v));
-    this.http.get<number>(`${this.base}/admin/dashboard/total-orders`).subscribe(v => this.totalOrders.set(v));
-    this.http.get<number>(`${this.base}/admin/dashboard/total-clients`).subscribe(v => this.totalClients.set(v));
-    this.http.get<Record<string, number>>(`${this.base}/admin/dashboard/monthly-revenue`).subscribe(map => {
-      const entries = Object.entries(map).map(([label, amount]) => ({ label, amount }));
+    this.http.get<number>(`${this.base}/admin/dashboard/total-revenue`).subscribe((v: number) => this.totalRevenue.set(v));
+    this.http.get<number>(`${this.base}/admin/dashboard/total-orders`).subscribe((v: number) => this.totalOrders.set(v));
+    this.http.get<number>(`${this.base}/admin/dashboard/total-clients`).subscribe((v: number) => this.totalClients.set(v));
+    this.http.get<Record<string, number>>(`${this.base}/admin/dashboard/monthly-revenue`).subscribe((map: Record<string, number>) => {
+      const entries = Object.entries(map).map(([label, amount]) => ({ label, amount: amount as number }));
       entries.sort((a, b) => a.label.localeCompare(b.label));
       this.monthlyRevenue.set(entries);
       
@@ -286,8 +292,8 @@ export class AdminDashboardComponent implements OnInit, OnDestroy {
       this.updateRevenueChart(entries);
     });
 
-    this.http.get<Record<string, number>>(`${this.base}/admin/dashboard/brand-distribution`).subscribe(map => {
-      const entries = Object.entries(map).map(([label, count]) => ({ label, count }));
+    this.http.get<Record<string, number>>(`${this.base}/admin/dashboard/brand-distribution`).subscribe((map: Record<string, number>) => {
+      const entries = Object.entries(map).map(([label, count]) => ({ label, count: count as number }));
       const total = entries.reduce((acc, curr) => acc + curr.count, 0);
       const stats = entries.map(e => ({
         label: e.label,

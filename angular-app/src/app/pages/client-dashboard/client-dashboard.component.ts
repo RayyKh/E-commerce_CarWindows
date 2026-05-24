@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { OrderApiService } from '../../services/order-api.service';
 
@@ -16,7 +16,9 @@ export class ClientDashboardComponent {
   protected readonly loading = signal(false);
   protected readonly error = signal<string | null>(null);
 
-  constructor(private ordersApi: OrderApiService) {}
+  private ordersApi = inject(OrderApiService);
+
+  constructor() {}
 
   fetchByPhone() {
     this.error.set(null);
@@ -27,11 +29,11 @@ export class ClientDashboardComponent {
     }
     this.loading.set(true);
     this.ordersApi.ordersByPhone(p).subscribe({
-      next: (list) => {
+      next: (list: any[]) => {
         this.orders.set(list.reverse());
         this.loading.set(false);
       },
-      error: (_) => {
+      error: (error: any) => {
         this.error.set('Impossible de récupérer vos commandes');
         this.loading.set(false);
       },
